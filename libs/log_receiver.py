@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+# 每个p图进程都会对应一个日志收集人，收集到的日志会统一通讯给talent并由talent上传给octopus
+import multiprocessing
+from libs.common import ProcessStatus
+import os
+import sys
+import time
+import signal
+from struct import unpack, calcsize
+import socket
+
+MpManagerDict = dict
+
+
+class LogReceiverCFG(object):
+    __name: str
+    __sock_path: str
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def sock_path(self) -> str:
+        return self.__sock_path
+    
+    def __init__(self, name: str, sock_path: str = None):
+        self.__name = name
+        if sock_path is not None:
+            self.__sock_path = sock_path
+
+
+class LogReceiver(multiprocessing.Process):
+    _app_cfg: LogReceiverCFG
+    _manager: MpManagerDict = None
+    _app_status: ProcessStatus
+    _log_sock = None
+
+    def __init__(self, cfg: LogReceiverCFG, manager: MpManagerDict = None, debug: bool = False, *args, **kwargs):
+        self.cfg = cfg
+        self._debug = debug
+        if manager is not None:
+            self._manager = manager
+        print("Start Success")
+        super().__init__(*args, **kwargs)
+
+    def _d(self, msg):
+        if self._debug:
+            print('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
+            sys.stdout.flush()
+    
+    def terminate(self, *args, **kwargs):
+        print('PID:%s 收到退出请求' % os.getpid())
+        sys.stdout.flush()
+        if self._log_sock is not None:
+            self._log_sock.close()
+        try:
+            os.remove(self._sock_file)
+        except OSError:
+            pass
+        raise SystemExit(0)
+    
+    def _check_runtime(self):
+        # check path can write
+        if not os.path.isdir(self.cfg.sock_path):
+            raise RuntimeError("%s is not dir" % self.cfg.sock_path)
+        
+        if not os.access(self.cfg.sock_path, os.W_OK):
+            raise RuntimeError("%s can not write")
+        
+        self._sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
+        
+        if os.path.exists(self._sock_file):
+            self._d("%s existed, remove it" % self._sock_file)
+            os.remove(self._sock_file)
+            
+    def start(self) -> None:
+        d = self._d
+        _pid = os.getpid()
+        d("Start LogReceiver, pid=%s" % _pid)
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
+        self._check_runtime()
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        # s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self._log_sock = s
+        d("Listen @ %s" % self._sock_file)
+        s.bind(self._sock_file)
+        # s.listen(1)
+        # s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, True)
+        int_size = calcsize("I")
+        
+        while True:
+            try:
+                # this for tcp
+                data, client_address = s.recvfrom(65535)
+                # client, client_address = s.accept()
+                
+                # data = client.recv(65535)
+                # client.ioctl(socket.SIO_KEEPALIVE_VALS, (
+                #     1,
+                #     5 * 60 * 1000,
+                #     5 * 60 * 1000
+                # ))
+                # d("From %s, %s" % (client_address, data))
+                # data = client.recv(4096)
+            except Exception as e:
+                print(e)
+                break
+            try:
+                (i,), data = unpack("I", data[:int_size]), data[int_size:]
+            except Exception as e:
+                print(e)
+            print("data: %s\n" % data.decode())
+            print("Received {0} bytes of data.".format(sys.getsizeof(data)))
+            # client.close()
+
