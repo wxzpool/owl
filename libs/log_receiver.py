@@ -14,21 +14,8 @@ MpManagerDict = dict
 
 
 class LogReceiverCFG(object):
-    __name: str
-    __sock_path: str
-
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @property
-    def sock_path(self) -> str:
-        return self.__sock_path
-    
-    def __init__(self, name: str, sock_path: str = None):
-        self.__name = name
-        if sock_path is not None:
-            self.__sock_path = sock_path
+    name: str
+    sock_path: str
 
 
 class LogReceiver(multiprocessing.Process):
@@ -40,6 +27,7 @@ class LogReceiver(multiprocessing.Process):
     def __init__(self, cfg: LogReceiverCFG, manager: MpManagerDict = None, debug: bool = False, *args, **kwargs):
         self.cfg = cfg
         self._debug = debug
+        self.sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
         if manager is not None:
             self._manager = manager
         print("Start Success")
@@ -47,16 +35,17 @@ class LogReceiver(multiprocessing.Process):
 
     def _d(self, msg):
         if self._debug:
-            print('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
-            sys.stdout.flush()
+            with open("/tmp/log_receiver.log", "a") as log:
+                log.write('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
+                log.flush()
     
     def terminate(self, *args, **kwargs):
-        print('PID:%s 收到退出请求' % os.getpid())
+        print('PID:%s LogReceiver收到退出请求' % os.getpid())
         sys.stdout.flush()
         if self._log_sock is not None:
             self._log_sock.close()
         try:
-            os.remove(self._sock_file)
+            os.remove(self.sock_file)
         except OSError:
             pass
         raise SystemExit(0)
@@ -69,13 +58,11 @@ class LogReceiver(multiprocessing.Process):
         if not os.access(self.cfg.sock_path, os.W_OK):
             raise RuntimeError("%s can not write")
         
-        self._sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
-        
-        if os.path.exists(self._sock_file):
-            self._d("%s existed, remove it" % self._sock_file)
-            os.remove(self._sock_file)
+        if os.path.exists(self.sock_file):
+            self._d("%s existed, remove it" % self.sock_file)
+            os.remove(self.sock_file)
             
-    def start(self) -> None:
+    def run(self) -> None:
         d = self._d
         _pid = os.getpid()
         d("Start LogReceiver, pid=%s" % _pid)
@@ -85,8 +72,8 @@ class LogReceiver(multiprocessing.Process):
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         # s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self._log_sock = s
-        d("Listen @ %s" % self._sock_file)
-        s.bind(self._sock_file)
+        d("Listen @ %s" % self.sock_file)
+        s.bind(self.sock_file)
         # s.listen(1)
         # s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, True)
         int_size = calcsize("I")
@@ -112,7 +99,7 @@ class LogReceiver(multiprocessing.Process):
                 (i,), data = unpack("I", data[:int_size]), data[int_size:]
             except Exception as e:
                 print(e)
-            print("data: %s\n" % data.decode())
-            print("Received {0} bytes of data.".format(sys.getsizeof(data)))
+            d("data: %s\n" % data.decode())
+            d("Received {0} bytes of data.".format(sys.getsizeof(data)))
             # client.close()
 

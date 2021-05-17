@@ -19,14 +19,11 @@
 #     REVISION:  ---
 # ===============================================================================
 
-from libs import log_receiver
+from libs import supervisor
 
 if __name__ == '__main__':
     print("For testing and debug")
-    cfg = log_receiver.LogReceiverCFG(
-        name="test",
-        sock_path="/tmp"
-    )
-    server = log_receiver.LogReceiver(cfg, debug=True)
-    # server.daemon = True
+    cfg = supervisor.SupervisorCFG()
+    cfg.sock_path = "/tmp"
+    server = supervisor.Supervisor(cfg, debug=True)
     server.start()

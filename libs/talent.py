@@ -7,29 +7,14 @@ import multiprocessing
 import time
 from libs import daemon
 from libs.common import ProcessStatus
-from libs.log_receiver import LogReceiverCFG, LogReceiver
 import signal
 
 MpManagerDict = dict
 
 
 class TalentCFG(object):
-    __name: str
-    __sock_path: str = "/tmp"
+    db_file: str = "/var/run/owl/talent.db"
     
-    @property
-    def name(self) -> str:
-        return self.__name
-    
-    @property
-    def sock_path(self) -> str:
-        return self.__sock_path
-    
-    def __init__(self, name: str, sock_path: str = None):
-        self.__name = name
-        if sock_path is not None:
-            self.__sock_path = sock_path
-            
     
 class Talent(multiprocessing.Process):
     """
@@ -45,10 +30,7 @@ class Talent(multiprocessing.Process):
         self._debug = debug
         if manager is not None:
             self._manager = manager
-        log_server_cfg = LogReceiverCFG(
-        
-        )
-        log_server = LogReceiver()
+
         print("Start Success")
         daemon.output_to_log(stdout='/tmp/glue_stdout.log', stderr='/tmp/glue_stderr.log')
         super().__init__(*args, **kwargs)
