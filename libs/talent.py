@@ -54,8 +54,8 @@ class Talent(multiprocessing.Process):
         if manager is not None:
             self._manager = manager
 
-        print("Start Success")
-        daemon.output_to_log(stdout='/tmp/glue_stdout.log', stderr='/tmp/glue_stderr.log')
+        # print("Start Success")
+        # daemon.output_to_log(stdout='/tmp/glue_stdout.log', stderr='/tmp/glue_stderr.log')
         super().__init__(*args, **kwargs)
     
     @property
@@ -87,7 +87,7 @@ class Talent(multiprocessing.Process):
             raise RuntimeError('cfg not defined')
     
     def terminate(self, *args, **kwargs):
-        print('PID:%s 收到退出请求' % os.getpid())
+        print('PID:%s Talent 收到退出请求' % os.getpid())
         sys.stdout.flush()
         raise SystemExit(0)
     
