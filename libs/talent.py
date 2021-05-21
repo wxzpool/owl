@@ -8,8 +8,31 @@ import time
 from libs import daemon
 from libs.common import ProcessStatus
 import signal
+# import grpc
+import libs.grpc.talent as pb2
+import libs.grpc.talent_pb2_grpc as pb2_grpc
 
 MpManagerDict = dict
+
+
+class TalentManager(pb2_grpc.PlotManagerServicer):
+    def plot_task_create(self, request, context):
+        pass
+    
+    def plot_task_status(self, request, context):
+        plot_detail = pb2.PlotDetails()
+        
+    def plot_task_status_all(self, request, context):
+        pass
+    
+    def plot_task_stop(self, request, context):
+        pass
+    
+    def plot_task_update(self, request, context):
+        pass
+    
+    def get_plot_tasks(self, request, context):
+        pass
 
 
 class TalentCFG(object):

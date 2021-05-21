@@ -24,6 +24,7 @@ message PlotP1Status {
     PlotPhaseStatus t5 = 7;
     PlotPhaseStatus t6 = 8;
     PlotPhaseStatus t7 = 9;
+    int32 now = 10;
 }
 
 message PlotP2Status {
@@ -35,6 +36,7 @@ message PlotP2Status {
     PlotP2BaseStatus t3 = 6;
     PlotP2BaseStatus t2 = 7;
     PlotP2BaseStatus t1 = 8;
+    int32 now = 9;
 }
 
 message PlotP3Status {
@@ -45,6 +47,7 @@ message PlotP3Status {
     PlotPhaseStatus t4_5 = 5;
     PlotPhaseStatus t5_6 = 6;
     PlotPhaseStatus t6_7 = 7;
+    string now = 8;
 }
 
 message PlotDetails {
@@ -66,9 +69,10 @@ message PlotDetails {
     PlotPhaseStatus copy_time = 16;
     string file_name = 17;
     string file_store = 18;
-    int wrote = 19;
-    string stage_now = 20;
-    float progress = 21;
+    string store_type = 19;
+    int32 wrote = 20;
+    int32 stage_now = 21;
+    float progress = 22;
 }
 
 message PlotConfig {
@@ -95,7 +99,7 @@ message PlotTaskStatus {
     string worker_id = 1;
     string task_id = 2;
     int32 pid = 3;
-    PlotProcessDetails plot_details = 3;
+    PlotDetails plot_details = 4;
 }
 
 message PlotTaskStatusAllResponse {
@@ -115,13 +119,17 @@ message PlotTaskUpdateResponse {
     bool status = 1;
 }
 
+message Empty {
+    // 空参数必须用一个空消息
+}
+
 service PlotManager {
-    rpc PlotTaskCreate(PlotTaskCreateRequest) returns (PlotTaskStatus);
-    rpc PlotTaskStatus(PlotTaskIdRequest) returns (PlotTaskStatus);
-    rpc PlotTaskStatusAll() returns (PlotTaskStatusAllResponse);
-    rpc PlotTaskStop(PlotTaskIdRequest) returns (PlotTaskStatus);
-    rpc PlotTaskUpdate(PlotTaskStatus) returns (PlotTaskUpdateResponse);
-    rpc GetPlotTasks() returns (PlotTaskStatusAllResponse);
+    rpc plot_task_create(PlotTaskCreateRequest) returns (PlotTaskStatus);
+    rpc plot_task_status(PlotTaskIdRequest) returns (PlotTaskStatus);
+    rpc plot_task_status_all(Empty) returns (PlotTaskStatusAllResponse);
+    rpc plot_task_stop(PlotTaskIdRequest) returns (PlotTaskStatus);
+    rpc plot_task_update(PlotTaskStatus) returns (PlotTaskUpdateResponse);
+    rpc get_plot_tasks(Empty) returns (PlotTaskStatusAllResponse);
 }
 
 
