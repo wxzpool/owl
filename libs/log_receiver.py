@@ -30,7 +30,7 @@ class LogReceiver(multiprocessing.Process):
         self.sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
         if manager is not None:
             self._manager = manager
-        print("Start Success")
+        # print("LogReceiver Start Success")
         super().__init__(*args, **kwargs)
 
     def _d(self, msg):
@@ -65,7 +65,7 @@ class LogReceiver(multiprocessing.Process):
     def run(self) -> None:
         d = self._d
         _pid = os.getpid()
-        d("Start LogReceiver, pid=%s" % _pid)
+        print("Start LogReceiver, pid=%s" % _pid)
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         self._check_runtime()
@@ -81,7 +81,7 @@ class LogReceiver(multiprocessing.Process):
         while True:
             try:
                 # this for tcp
-                data, client_address = s.recvfrom(65535)
+                data, _ = s.recvfrom(65535)
                 # client, client_address = s.accept()
                 
                 # data = client.recv(65535)
@@ -90,16 +90,18 @@ class LogReceiver(multiprocessing.Process):
                 #     5 * 60 * 1000,
                 #     5 * 60 * 1000
                 # ))
-                # d("From %s, %s" % (client_address, data))
                 # data = client.recv(4096)
+                d("data: %s\n" % data.decode())
+                if data.decode() == 'ping':
+                    s.sendto(b'pong', self.sock_file)
+                d("Received {0} bytes of data.".format(sys.getsizeof(data)))
             except Exception as e:
                 print(e)
-                break
-            try:
-                (i,), data = unpack("I", data[:int_size]), data[int_size:]
-            except Exception as e:
-                print(e)
-            d("data: %s\n" % data.decode())
-            d("Received {0} bytes of data.".format(sys.getsizeof(data)))
+                continue
+            # try:
+            #     (i,), data = unpack("I", data[:int_size]), data[int_size:]
+            # except Exception as e:
+            #     print(e)
+            
             # client.close()
 

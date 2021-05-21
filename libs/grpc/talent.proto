@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package talent;
+
+message PlotPhaseStatus {
+    string stage = 1;
+    float time = 2;
+    float cpu_usage = 3;
+}
+
+message PlotP2BaseStatus {
+    string stage = 1;
+    PlotPhaseStatus scan = 2;
+    PlotPhaseStatus sort = 3;
+}
+
+message PlotP1Status {
+    string stage = 1;
+    int32 table_1_now_size = 2;
+    PlotPhaseStatus t1 = 3;
+    PlotPhaseStatus t2 = 4;
+    PlotPhaseStatus t3 = 5;
+    PlotPhaseStatus t4 = 6;
+    PlotPhaseStatus t5 = 7;
+    PlotPhaseStatus t6 = 8;
+    PlotPhaseStatus t7 = 9;
+}
+
+message PlotP2Status {
+    string stage = 1;
+    PlotP2BaseStatus t7 = 2;
+    PlotP2BaseStatus t6 = 3;
+    PlotP2BaseStatus t5 = 4;
+    PlotP2BaseStatus t4 = 5;
+    PlotP2BaseStatus t3 = 6;
+    PlotP2BaseStatus t2 = 7;
+    PlotP2BaseStatus t1 = 8;
+}
+
+message PlotP3Status {
+    string stage = 1;
+    PlotPhaseStatus t1_2 = 2;
+    PlotPhaseStatus t2_3 = 3;
+    PlotPhaseStatus t3_4 = 4;
+    PlotPhaseStatus t4_5 = 5;
+    PlotPhaseStatus t5_6 = 6;
+    PlotPhaseStatus t6_7 = 7;
+}
+
+message PlotDetails {
+    string fpk = 1;
+    string ppk = 2;
+    string id = 3;
+    int32 ksize = 4;
+    string cache1 = 5;
+    string cache2 = 6;
+    int32 buffer = 7;
+    int32 buckets = 8;
+    int32 threads = 9;
+    int32 stripe_size = 10;
+    PlotP1Status phase_1_status = 11;
+    PlotP2Status phase_2_status = 12;
+    PlotP3Status phase_3_status = 13;
+    PlotPhaseStatus phase_4_status = 14;
+    PlotPhaseStatus total_time = 15;
+    PlotPhaseStatus copy_time = 16;
+    string file_name = 17;
+    string file_store = 18;
+    int wrote = 19;
+    string stage_now = 20;
+    float progress = 21;
+}
+
+message PlotConfig {
+    string fpk = 1;
+    string ppk = 2;
+    int32 ksize = 3;
+    int32 cpu = 4;
+    int32 mem = 5;
+    string cache1 = 6;
+    string cache2 = 7;
+    message Dest {
+        string type = 1;
+        string path = 2;
+    }
+    Dest dest = 8;
+}
+
+message PlotTaskCreateRequest {
+    string task_id = 1;
+    PlotConfig plot_config = 2;
+}
+
+message PlotTaskStatus {
+    string worker_id = 1;
+    string task_id = 2;
+    int32 pid = 3;
+    PlotProcessDetails plot_details = 3;
+}
+
+message PlotTaskStatusAllResponse {
+    repeated PlotTaskStatus tasks = 1;
+}
+
+message PlotTaskIdRequest {
+    string task_id = 1;
+}
+
+message GetPlotTaskResponse {
+    // 所有未执行的任务列表
+    repeated PlotConfig task_list = 1;
+}
+
+message PlotTaskUpdateResponse {
+    bool status = 1;
+}
+
+service PlotManager {
+    rpc PlotTaskCreate(PlotTaskCreateRequest) returns (PlotTaskStatus);
+    rpc PlotTaskStatus(PlotTaskIdRequest) returns (PlotTaskStatus);
+    rpc PlotTaskStatusAll() returns (PlotTaskStatusAllResponse);
+    rpc PlotTaskStop(PlotTaskIdRequest) returns (PlotTaskStatus);
+    rpc PlotTaskUpdate(PlotTaskStatus) returns (PlotTaskUpdateResponse);
+    rpc GetPlotTasks() returns (PlotTaskStatusAllResponse);
+}
+
+
+
+

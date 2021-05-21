@@ -78,8 +78,9 @@ class Plotter(multiprocessing.Process):
             raise RuntimeError('cfg not defined')
     
     def terminate(self, *args, **kwargs):
-        self._d('PID:%s Plotter 收到退出请求' % os.getpid())
+        print('PID:%s Plotter 收到退出请求' % os.getpid())
         sys.stdout.flush()
+        os.kill(self._plotter.pid, 9)
         raise SystemExit(0)
     
     def run(self):
@@ -87,7 +88,7 @@ class Plotter(multiprocessing.Process):
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         _pid = os.getpid()
-        d("Start Plotter, pid=%s" % _pid)
+        print("Start Plotter, pid=%s" % _pid)
         self._app_check()
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         s.connect(self.sock_file)
@@ -104,7 +105,7 @@ class Plotter(multiprocessing.Process):
             dest=self.cfg.dest
         )
         d(cmd)
-        sub = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True, bufsize=4096, stdout=file_handle, stderr=file_handle)
-        d(sub)
+        self._plotter = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True, bufsize=4096, stdout=file_handle, stderr=file_handle)
+        d(dir(self._plotter))
         
 

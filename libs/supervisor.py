@@ -9,9 +9,11 @@ from libs.common import ProcessStatus
 from libs.log_receiver import LogReceiverCFG, LogReceiver
 from libs.plotter import PlotterCFG, Plotter
 import signal
+from copy import deepcopy
 import subprocess
 import shlex
 import datetime
+import socket
 
 MpManagerDict = dict
 
@@ -29,7 +31,7 @@ class Supervisor(multiprocessing.Process):
     _app_cfg: SupervisorCFG
     _manager: MpManagerDict = None
     _app_status: ProcessStatus
-    _process_list = list()
+    _process_list: [ProcessList] = list()
     
     def __init__(self, cfg: SupervisorCFG, manager: dict = None, debug: bool = False, *args, **kwargs):
         self._app_cfg = cfg
@@ -91,24 +93,35 @@ class Supervisor(multiprocessing.Process):
         p = PlotterCFG()
         p.bin = "/tmp/chia"
         p.name = "tester_%s" % now
-        p.fpk = "fpk"
-        p.ppk = "ppk"
+        p.fpk = "fpk1"
+        p.ppk = "ppk1"
         p.thread = 4
         p.ksize = 33
         p.cache1 = "/cache/level1-1"
         p.cache2 = p.cache1
-        p.dest = "/data"
+        p.dest = "/data/1"
         p.mem = 8000
-        return [p]
+        p2 = deepcopy(p)
+        p3 = deepcopy(p)
+        p2.name = "tester_%s" % int(time())
+        p2.dest = "/data/2"
+        p3.name = "tester_%s" % int(time())
+        p3.dest = "/data/3"
+        return [p, p2, p3]
     
     def terminate(self, *args, **kwargs):
-        self._d('PID:%s Supervisor 收到退出请求' % os.getpid())
+        d = self._d
+        print('PID:%s Supervisor 收到退出请求' % os.getpid())
         sys.stdout.flush()
         # todo Supervisor管理了多个的p图进程，需要遍历并关闭他们
         # 关闭log
         # logger = self._logger
         # if logger.is_alive():
         #    os.kill(logger.pid, signal.SIGTERM)
+        for pl in self._process_list:
+            print("关闭子进程plotter: %s, logger: %s" % (pl.plotter.pid, pl.logger.pid))
+            os.kill(pl.plotter.pid, signal.SIGKILL)
+            os.kill(pl.logger.pid, signal.SIGTERM)
         raise SystemExit(0)
     
     def run(self):
@@ -116,19 +129,25 @@ class Supervisor(multiprocessing.Process):
         signal.signal(signal.SIGINT, self.terminate)
         d = self._d
         _pid = os.getpid()
-        d("Start Supervisor, pid=%s" % _pid)
+        print("Start Supervisor, pid=%s" % _pid)
         self._check_runtime()
         # 检查现有任务状态
         for pl in self._process_list:
             d(pl.plotter.pid)
         # 定时获取任务， grpc调用talent
         for t in self._get_task():
+            # todo 机器应该有最大上限(按照ssd划分)
             process = ProcessList()
-            d("start logger")
+            # print("start logger")
             process.logger = self._start_sock_logger(t.name, self.cfg.sock_path)
             d(process.logger)
-            time.sleep(3)
-            d("start plotter")
+            # time.sleep(3)
+            # test sock server up
+            while True:
+                if os.path.exists(process.logger.sock_file):
+                    break
+                time.sleep(1)
+            # print("start plotter")
             process.plotter = self._start_plotter(t, process.logger.sock_file)
             d(process.plotter)
             self._process_list.append(process)
