@@ -1,4 +1,4 @@
 psutil
 grpcio
 grpcio-tools
-betterproto
+sqlalchemy

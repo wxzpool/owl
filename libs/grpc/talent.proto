@@ -67,20 +67,21 @@ message PlotDetails {
     PlotPhaseStatus phase_4_status = 14;
     PlotPhaseStatus total_time = 15;
     PlotPhaseStatus copy_time = 16;
-    string file_name = 17;
-    string file_store = 18;
-    string store_type = 19;
+    string dest_file_name = 17;
+    string dest_path = 18;
+    string dest_type = 19;
     int32 wrote = 20;
     int32 stage_now = 21;
     float progress = 22;
+    string memo = 23;
 }
 
 message PlotConfig {
     string fpk = 1;
     string ppk = 2;
     int32 ksize = 3;
-    int32 cpu = 4;
-    int32 mem = 5;
+    int32 threads = 4;
+    int32 buffer = 5;
     string cache1 = 6;
     string cache2 = 7;
     message Dest {
@@ -92,14 +93,18 @@ message PlotConfig {
 
 message PlotTaskCreateRequest {
     string task_id = 1;
-    PlotConfig plot_config = 2;
+    string worker_id = 2;
+    PlotConfig plot_config = 3;
 }
 
 message PlotTaskStatus {
     string worker_id = 1;
     string task_id = 2;
-    int32 pid = 3;
-    PlotDetails plot_details = 4;
+    bool existed = 3;
+    int32 plot_pid = 4;
+    int32 log_pid = 5;
+    string status = 6;
+    PlotDetails plot_details = 7;
 }
 
 message PlotTaskStatusAllResponse {
@@ -110,13 +115,25 @@ message PlotTaskIdRequest {
     string task_id = 1;
 }
 
+message PlotTaskStopRequest {
+    string task_id = 1;
+    string reason = 2;
+}
+
 message GetPlotTaskResponse {
     // 所有未执行的任务列表
     repeated PlotConfig task_list = 1;
 }
 
+message PlotTaskStatusResponse {
+    string type = 1;
+    bool is_success = 2;
+    string msg = 3;
+}
+
 message PlotTaskUpdateResponse {
-    bool status = 1;
+    bool is_success = 1;
+    string msg = 2;
 }
 
 message Empty {
@@ -124,10 +141,10 @@ message Empty {
 }
 
 service PlotManager {
-    rpc plot_task_create(PlotTaskCreateRequest) returns (PlotTaskStatus);
+    rpc plot_task_create(PlotTaskCreateRequest) returns (PlotTaskStatusResponse);
     rpc plot_task_status(PlotTaskIdRequest) returns (PlotTaskStatus);
     rpc plot_task_status_all(Empty) returns (PlotTaskStatusAllResponse);
-    rpc plot_task_stop(PlotTaskIdRequest) returns (PlotTaskStatus);
+    rpc plot_task_stop(PlotTaskStopRequest) returns (PlotTaskStatusResponse);
     rpc plot_task_update(PlotTaskStatus) returns (PlotTaskUpdateResponse);
     rpc get_plot_tasks(Empty) returns (PlotTaskStatusAllResponse);
 }

@@ -36,42 +36,38 @@ class LogFilter(structs.PlotDetails):
     is_started: bool = False
     is_finished: bool = False
     
-    def parser(self, s: str):
+    def parser(self, s: str) -> bool:
         # print(s)
         if self.is_finished:
-            return
+            return True
         if not self.is_started:
-            self._is_started(s)
+            if self._is_started(s):
+                return True
+        if self._get_memo(s):
+            return True
         if self._get_id(s):
-            return
+            return True
         if self._get_plots_size(s):
-            return
+            return True
         if self._get_cache(s):
-            return
+            return True
         if self._get_buffer(s):
-            return
+            return True
         if self._get_buckets(s):
-            return
+            return True
         if self._get_threads_stripe_size(s):
-            return
+            return True
         if self._which_stage(s):
-            return
+            return True
         if self._process_stage_info(s):
-            return
-        # if self._get_phase_1_time(s):
-        #     return
-        # if self._get_phase_2_time(s):
-        #     return
-        # if self._get_phase_3_time(s):
-        #     return
-        # if self._get_phase_4_time(s):
-        #     return
+            return True
         if self._get_total_time(s):
-            return
+            return True
         if self._get_copy_time(s):
-            return
+            return True
         if self._is_finished(s):
-            return
+            return True
+        return False
     
     def _process_stage_info(self, s: str) -> bool:
         if self.stage_now == 0:
@@ -288,6 +284,15 @@ class LogFilter(structs.PlotDetails):
             return True
         return False
     
+    def _get_memo(self, s:str) -> bool:
+        # 2021-05-16T16:06:03.323  chia.plotting.create_plots       : [32mINFO    [0m Memo: 89b8992f6d30fb87e479fbd8bb7c1c3eba86484d50427ba9b91e6c50d12a5f76de307ffce450b222273c97138395d53797239fc2ed439dbd404724f10505c3f5a4ddfb705591f76720c2d84d172a178d6ed10617afa562a73a657163b2955213326db6f2b57560b2f9ac4f917e909d4ac181e90e4bbfe2f85e5081425ccdf641[0m
+        reg = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\s+chia\.plotting\.create_plots\s+:\s+INFO\s+Memo:\s+(?P<memo>\w+)')
+        t = reg.search(s)
+        if t is not None and 'memo' in t.groupdict():
+            self.memo = t.groupdict()['memo']
+            return True
+        return False
+
     def _get_id(self, s: str) -> bool:
         # ID: 3c99851e3fa6a8f1bc4025ac3a18773ef34a19ae27b792cd9482442dfac75d2e
         reg = re.compile(r'^ID:\s+(?P<id>\w+)')

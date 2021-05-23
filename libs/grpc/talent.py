@@ -79,12 +79,13 @@ class PlotDetails(betterproto.Message):
     phase_4_status: "PlotPhaseStatus" = betterproto.message_field(14)
     total_time: "PlotPhaseStatus" = betterproto.message_field(15)
     copy_time: "PlotPhaseStatus" = betterproto.message_field(16)
-    file_name: str = betterproto.string_field(17)
-    file_store: str = betterproto.string_field(18)
-    store_type: str = betterproto.string_field(19)
+    dest_file_name: str = betterproto.string_field(17)
+    dest_path: str = betterproto.string_field(18)
+    dest_type: str = betterproto.string_field(19)
     wrote: int = betterproto.int32_field(20)
     stage_now: int = betterproto.int32_field(21)
     progress: float = betterproto.float_field(22)
+    memo: str = betterproto.string_field(23)
 
 
 @dataclass
@@ -92,8 +93,8 @@ class PlotConfig(betterproto.Message):
     fpk: str = betterproto.string_field(1)
     ppk: str = betterproto.string_field(2)
     ksize: int = betterproto.int32_field(3)
-    cpu: int = betterproto.int32_field(4)
-    mem: int = betterproto.int32_field(5)
+    threads: int = betterproto.int32_field(4)
+    buffer: int = betterproto.int32_field(5)
     cache1: str = betterproto.string_field(6)
     cache2: str = betterproto.string_field(7)
     dest: "PlotConfigDest" = betterproto.message_field(8)
@@ -108,15 +109,19 @@ class PlotConfigDest(betterproto.Message):
 @dataclass
 class PlotTaskCreateRequest(betterproto.Message):
     task_id: str = betterproto.string_field(1)
-    plot_config: "PlotConfig" = betterproto.message_field(2)
+    worker_id: str = betterproto.string_field(2)
+    plot_config: "PlotConfig" = betterproto.message_field(3)
 
 
 @dataclass
 class PlotTaskStatus(betterproto.Message):
     worker_id: str = betterproto.string_field(1)
     task_id: str = betterproto.string_field(2)
-    pid: int = betterproto.int32_field(3)
-    plot_details: "PlotDetails" = betterproto.message_field(4)
+    existed: bool = betterproto.bool_field(3)
+    plot_pid: int = betterproto.int32_field(4)
+    log_pid: int = betterproto.int32_field(5)
+    status: str = betterproto.string_field(6)
+    plot_details: "PlotDetails" = betterproto.message_field(7)
 
 
 @dataclass
@@ -130,14 +135,28 @@ class PlotTaskIdRequest(betterproto.Message):
 
 
 @dataclass
+class PlotTaskStopRequest(betterproto.Message):
+    task_id: str = betterproto.string_field(1)
+    reason: str = betterproto.string_field(2)
+
+
+@dataclass
 class GetPlotTaskResponse(betterproto.Message):
     # 所有未执行的任务列表
     task_list: List["PlotConfig"] = betterproto.message_field(1)
 
 
 @dataclass
+class PlotTaskStatusResponse(betterproto.Message):
+    type: str = betterproto.string_field(1)
+    is_success: bool = betterproto.bool_field(2)
+    msg: str = betterproto.string_field(3)
+
+
+@dataclass
 class PlotTaskUpdateResponse(betterproto.Message):
-    status: bool = betterproto.bool_field(1)
+    is_success: bool = betterproto.bool_field(1)
+    msg: str = betterproto.string_field(2)
 
 
 @dataclass
@@ -147,17 +166,22 @@ class Empty(betterproto.Message):
 
 class PlotManagerStub(betterproto.ServiceStub):
     async def plot_task_create(
-        self, *, task_id: str = "", plot_config: Optional["PlotConfig"] = None
-    ) -> PlotTaskStatus:
+        self,
+        *,
+        task_id: str = "",
+        worker_id: str = "",
+        plot_config: Optional["PlotConfig"] = None,
+    ) -> PlotTaskStatusResponse:
         request = PlotTaskCreateRequest()
         request.task_id = task_id
+        request.worker_id = worker_id
         if plot_config is not None:
             request.plot_config = plot_config
 
         return await self._unary_unary(
             "/talent.PlotManager/plot_task_create",
             request,
-            PlotTaskStatus,
+            PlotTaskStatusResponse,
         )
 
     async def plot_task_status(self, *, task_id: str = "") -> PlotTaskStatus:
@@ -179,14 +203,17 @@ class PlotManagerStub(betterproto.ServiceStub):
             PlotTaskStatusAllResponse,
         )
 
-    async def plot_task_stop(self, *, task_id: str = "") -> PlotTaskStatus:
-        request = PlotTaskIdRequest()
+    async def plot_task_stop(
+        self, *, task_id: str = "", reason: str = ""
+    ) -> PlotTaskStatusResponse:
+        request = PlotTaskStopRequest()
         request.task_id = task_id
+        request.reason = reason
 
         return await self._unary_unary(
             "/talent.PlotManager/plot_task_stop",
             request,
-            PlotTaskStatus,
+            PlotTaskStatusResponse,
         )
 
     async def plot_task_update(
@@ -194,13 +221,19 @@ class PlotManagerStub(betterproto.ServiceStub):
         *,
         worker_id: str = "",
         task_id: str = "",
-        pid: int = 0,
+        existed: bool = False,
+        plot_pid: int = 0,
+        log_pid: int = 0,
+        status: str = "",
         plot_details: Optional["PlotDetails"] = None,
     ) -> PlotTaskUpdateResponse:
         request = PlotTaskStatus()
         request.worker_id = worker_id
         request.task_id = task_id
-        request.pid = pid
+        request.existed = existed
+        request.plot_pid = plot_pid
+        request.log_pid = log_pid
+        request.status = status
         if plot_details is not None:
             request.plot_details = plot_details
 

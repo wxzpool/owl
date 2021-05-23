@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import talent_pb2 as talent__pb2
+from . import talent_pb2 as talent__pb2
 
 
 class PlotManagerStub(object):
@@ -17,7 +17,7 @@ class PlotManagerStub(object):
         self.plot_task_create = channel.unary_unary(
                 '/talent.PlotManager/plot_task_create',
                 request_serializer=talent__pb2.PlotTaskCreateRequest.SerializeToString,
-                response_deserializer=talent__pb2.PlotTaskStatus.FromString,
+                response_deserializer=talent__pb2.PlotTaskStatusResponse.FromString,
                 )
         self.plot_task_status = channel.unary_unary(
                 '/talent.PlotManager/plot_task_status',
@@ -31,8 +31,8 @@ class PlotManagerStub(object):
                 )
         self.plot_task_stop = channel.unary_unary(
                 '/talent.PlotManager/plot_task_stop',
-                request_serializer=talent__pb2.PlotTaskIdRequest.SerializeToString,
-                response_deserializer=talent__pb2.PlotTaskStatus.FromString,
+                request_serializer=talent__pb2.PlotTaskStopRequest.SerializeToString,
+                response_deserializer=talent__pb2.PlotTaskStatusResponse.FromString,
                 )
         self.plot_task_update = channel.unary_unary(
                 '/talent.PlotManager/plot_task_update',
@@ -91,7 +91,7 @@ def add_PlotManagerServicer_to_server(servicer, server):
             'plot_task_create': grpc.unary_unary_rpc_method_handler(
                     servicer.plot_task_create,
                     request_deserializer=talent__pb2.PlotTaskCreateRequest.FromString,
-                    response_serializer=talent__pb2.PlotTaskStatus.SerializeToString,
+                    response_serializer=talent__pb2.PlotTaskStatusResponse.SerializeToString,
             ),
             'plot_task_status': grpc.unary_unary_rpc_method_handler(
                     servicer.plot_task_status,
@@ -105,8 +105,8 @@ def add_PlotManagerServicer_to_server(servicer, server):
             ),
             'plot_task_stop': grpc.unary_unary_rpc_method_handler(
                     servicer.plot_task_stop,
-                    request_deserializer=talent__pb2.PlotTaskIdRequest.FromString,
-                    response_serializer=talent__pb2.PlotTaskStatus.SerializeToString,
+                    request_deserializer=talent__pb2.PlotTaskStopRequest.FromString,
+                    response_serializer=talent__pb2.PlotTaskStatusResponse.SerializeToString,
             ),
             'plot_task_update': grpc.unary_unary_rpc_method_handler(
                     servicer.plot_task_update,
@@ -141,7 +141,7 @@ class PlotManager(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/plot_task_create',
             talent__pb2.PlotTaskCreateRequest.SerializeToString,
-            talent__pb2.PlotTaskStatus.FromString,
+            talent__pb2.PlotTaskStatusResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -191,8 +191,8 @@ class PlotManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/plot_task_stop',
-            talent__pb2.PlotTaskIdRequest.SerializeToString,
-            talent__pb2.PlotTaskStatus.FromString,
+            talent__pb2.PlotTaskStopRequest.SerializeToString,
+            talent__pb2.PlotTaskStatusResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
