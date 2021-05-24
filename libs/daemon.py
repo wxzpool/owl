@@ -5,6 +5,7 @@ import os
 import sys
 import atexit
 import psutil
+import signal
 
 
 def daemonize(pid_file):
@@ -44,10 +45,11 @@ def daemonize(pid_file):
     atexit.register(lambda: os.remove(pid_file))
 
     # Signal handler for termination (required)
-    # def sigterm_handler(signo, frame):
-    #    raise SystemExit(1)
+    def sigterm_handler(signo, frame):
+        raise SystemExit(1)
 
-    # signal.signal(signal.SIGTERM, sigterm_handler)
+    signal.signal(signal.SIGTERM, sigterm_handler)
+    signal.signal(signal.SIGINT, sigterm_handler)
 
 
 def output_to_log(*, stdin='/dev/null',
