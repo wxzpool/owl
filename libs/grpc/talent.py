@@ -34,6 +34,8 @@ class PlotP1Status(betterproto.Message):
     t6: "PlotPhaseStatus" = betterproto.message_field(8)
     t7: "PlotPhaseStatus" = betterproto.message_field(9)
     now: int = betterproto.int32_field(10)
+    time: float = betterproto.float_field(11)
+    cpu_usage: float = betterproto.float_field(12)
 
 
 @dataclass
@@ -47,6 +49,8 @@ class PlotP2Status(betterproto.Message):
     t2: "PlotP2BaseStatus" = betterproto.message_field(7)
     t1: "PlotP2BaseStatus" = betterproto.message_field(8)
     now: int = betterproto.int32_field(9)
+    time: float = betterproto.float_field(10)
+    cpu_usage: float = betterproto.float_field(11)
 
 
 @dataclass
@@ -59,6 +63,8 @@ class PlotP3Status(betterproto.Message):
     t5_6: "PlotPhaseStatus" = betterproto.message_field(6)
     t6_7: "PlotPhaseStatus" = betterproto.message_field(7)
     now: str = betterproto.string_field(8)
+    time: float = betterproto.float_field(9)
+    cpu_usage: float = betterproto.float_field(10)
 
 
 @dataclass

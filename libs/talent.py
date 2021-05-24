@@ -136,7 +136,7 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         if len(has_task) == 0:
             ret.msg = "%s not existed" % task_id
             return ret
-        plot_task = has_task[0]
+        plot_task: db.DBPlotTasks = has_task[0]
         if request.plot_pid != 0:
             _is_change = True
             plot_task.plot_pid = request.plot_pid
@@ -146,7 +146,289 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         if request.status != "":
             _is_change = True
             plot_task.status = request.status
-        # todo 2021-05-23 not finish
+        # todo 2021-05-24 finish need test
+        if request.plot_details.fpk != "":
+            _is_change = True
+            plot_task.fpk = request.plot_details.fpk
+        if request.plot_details.ppk != "":
+            _is_change = True
+            plot_task.ppk = request.plot_details.ppk
+        if request.plot_details.ksize != 0:
+            _is_change = True
+            plot_task.ksize = request.plot_details.ksize
+        if request.plot_details.cache1 != "":
+            _is_change = True
+            plot_task.cache1 = request.plot_details.cache1
+        if request.plot_details.cache2 != "":
+            _is_change = True
+            plot_task.cache2 = request.plot_details.cache2
+        if request.plot_details.buffer != 0:
+            _is_change = True
+            plot_task.buffer = request.plot_details.buffer
+        if request.plot_details.buckets != 0:
+            _is_change = True
+            plot_task.buckets = request.plot_details.buckets
+        if request.plot_details.threads != 0:
+            _is_change = True
+            plot_task.threads = request.plot_details.threads
+        if request.plot_details.stripe_size != 0:
+            _is_change = True
+            plot_task.stripe_size = request.plot_details.stripe_size
+        if request.plot_details.memo != "":
+            _is_change = True
+            plot_task.memo = request.plot_details.memo
+        if request.plot_details.progress != 0.0:
+            _is_change = True
+            plot_task.progress = request.plot_details.progress
+        if request.plot_details.stage_now != 0:
+            _is_change = True
+            plot_task.stage_now = request.plot_details.stage_now
+        if request.plot_details.dest_type != "":
+            _is_change = True
+            plot_task.dest_type = request.plot_details.dest_type
+        if request.plot_details.dest_path != "":
+            _is_change = True
+            plot_task.dest_path = request.plot_details.dest_path
+        if request.plot_details.dest_file_name != "":
+            _is_change = True
+            plot_task.dest_file_name = request.plot_details.dest_file_name
+            
+        # phase 1 detail
+        if request.plot_details.phase_1_status.t1.time != 0.0:
+            _is_change = True
+            plot_task.p1_t1_time = request.plot_details.phase_1_status.t1.time
+        if request.plot_details.phase_1_status.t1.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t1_cpu = request.plot_details.phase_1_status.t1.cpu_usage
+        
+        if request.plot_details.phase_1_status.t2.time != 0.0:
+            _is_change = True
+            plot_task.p1_t2_time = request.plot_details.phase_1_status.t2.time
+        if request.plot_details.phase_1_status.t2.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t2_cpu = request.plot_details.phase_1_status.t2.cpu_usage
+
+        if request.plot_details.phase_1_status.t3.time != 0.0:
+            _is_change = True
+            plot_task.p1_t3_time = request.plot_details.phase_1_status.t3.time
+        if request.plot_details.phase_1_status.t3.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t3_cpu = request.plot_details.phase_1_status.t3.cpu_usage
+
+        if request.plot_details.phase_1_status.t4.time != 0.0:
+            _is_change = True
+            plot_task.p1_t4_time = request.plot_details.phase_1_status.t4.time
+        if request.plot_details.phase_1_status.t4.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t4_cpu = request.plot_details.phase_1_status.t4.cpu_usage
+
+        if request.plot_details.phase_1_status.t5.time != 0.0:
+            _is_change = True
+            plot_task.p1_t5_time = request.plot_details.phase_1_status.t5.time
+        if request.plot_details.phase_1_status.t5.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t5_cpu = request.plot_details.phase_1_status.t5.cpu_usage
+
+        if request.plot_details.phase_1_status.t6.time != 0.0:
+            _is_change = True
+            plot_task.p1_t6_time = request.plot_details.phase_1_status.t6.time
+        if request.plot_details.phase_1_status.t6.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t6_cpu = request.plot_details.phase_1_status.t6.cpu_usage
+
+        if request.plot_details.phase_1_status.t7.time != 0.0:
+            _is_change = True
+            plot_task.p1_t7_time = request.plot_details.phase_1_status.t7.time
+        if request.plot_details.phase_1_status.t7.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_t7_cpu = request.plot_details.phase_1_status.t7.cpu_usage
+        
+        # p1 total
+        if request.plot_details.phase_1_status.time != 0.0:
+            _is_change = True
+            plot_task.p1_total_time = request.plot_details.phase_1_status.time
+        if request.plot_details.phase_1_status.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p1_total_cpu = request.plot_details.phase_1_status.cpu_usage
+
+        # p2
+        if request.plot_details.phase_2_status.t1.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t1_scan_time = request.plot_details.phase_2_status.t1.scan.time
+        if request.plot_details.phase_2_status.t1.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t1_scan_cpu = request.plot_details.phase_2_status.t1.scan.cpu_usage
+        if request.plot_details.phase_2_status.t1.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t1_sort_time = request.plot_details.phase_2_status.t1.sort.time
+        if request.plot_details.phase_2_status.t1.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t1_sort_cpu = request.plot_details.phase_2_status.t1.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t2.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t2_scan_time = request.plot_details.phase_2_status.t2.scan.time
+        if request.plot_details.phase_2_status.t2.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t2_scan_cpu = request.plot_details.phase_2_status.t2.scan.cpu_usage
+        if request.plot_details.phase_2_status.t2.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t2_sort_time = request.plot_details.phase_2_status.t2.sort.time
+        if request.plot_details.phase_2_status.t2.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t2_sort_cpu = request.plot_details.phase_2_status.t2.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t3.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t3_scan_time = request.plot_details.phase_2_status.t3.scan.time
+        if request.plot_details.phase_2_status.t3.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t3_scan_cpu = request.plot_details.phase_2_status.t3.scan.cpu_usage
+        if request.plot_details.phase_2_status.t3.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t3_sort_time = request.plot_details.phase_2_status.t3.sort.time
+        if request.plot_details.phase_2_status.t3.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t3_sort_cpu = request.plot_details.phase_2_status.t3.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t4.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t4_scan_time = request.plot_details.phase_2_status.t4.scan.time
+        if request.plot_details.phase_2_status.t4.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t4_scan_cpu = request.plot_details.phase_2_status.t4.scan.cpu_usage
+        if request.plot_details.phase_2_status.t4.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t4_sort_time = request.plot_details.phase_2_status.t4.sort.time
+        if request.plot_details.phase_2_status.t4.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t4_sort_cpu = request.plot_details.phase_2_status.t4.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t5.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t5_scan_time = request.plot_details.phase_2_status.t5.scan.time
+        if request.plot_details.phase_2_status.t5.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t5_scan_cpu = request.plot_details.phase_2_status.t5.scan.cpu_usage
+        if request.plot_details.phase_2_status.t5.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t5_sort_time = request.plot_details.phase_2_status.t5.sort.time
+        if request.plot_details.phase_2_status.t5.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t5_sort_cpu = request.plot_details.phase_2_status.t5.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t6.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t6_scan_time = request.plot_details.phase_2_status.t6.scan.time
+        if request.plot_details.phase_2_status.t6.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t6_scan_cpu = request.plot_details.phase_2_status.t6.scan.cpu_usage
+        if request.plot_details.phase_2_status.t6.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t6_sort_time = request.plot_details.phase_2_status.t6.sort.time
+        if request.plot_details.phase_2_status.t6.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t6_sort_cpu = request.plot_details.phase_2_status.t6.sort.cpu_usage
+
+        if request.plot_details.phase_2_status.t7.scan.time != 0.0:
+            _is_change = True
+            plot_task.p2_t7_scan_time = request.plot_details.phase_2_status.t7.scan.time
+        if request.plot_details.phase_2_status.t7.scan.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t7_scan_cpu = request.plot_details.phase_2_status.t7.scan.cpu_usage
+        if request.plot_details.phase_2_status.t7.sort.time != 0.0:
+            _is_change = True
+            plot_task.p2_t7_sort_time = request.plot_details.phase_2_status.t7.sort.time
+        if request.plot_details.phase_2_status.t7.sort.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_t7_sort_cpu = request.plot_details.phase_2_status.t7.sort.cpu_usage
+
+        # p2 total
+        if request.plot_details.phase_2_status.time != 0.0:
+            _is_change = True
+            plot_task.p2_total_time = request.plot_details.phase_2_status.time
+        if request.plot_details.phase_2_status.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p2_total_cpu = request.plot_details.phase_2_status.cpu_usage
+            
+        # phase 3 detail
+        if request.plot_details.phase_3_status.t1_2.time != 0.0:
+            _is_change = True
+            plot_task.p3_t1_2_time = request.plot_details.phase_3_status.t1_2.time
+        if request.plot_details.phase_3_status.t1_2.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t1_2_cpu = request.plot_details.phase_3_status.t1_2.cpu_usage
+
+        if request.plot_details.phase_3_status.t2_3.time != 0.0:
+            _is_change = True
+            plot_task.p3_t2_3_time = request.plot_details.phase_3_status.t2_3.time
+        if request.plot_details.phase_3_status.t2_3.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t2_3_cpu = request.plot_details.phase_3_status.t2_3.cpu_usage
+
+        if request.plot_details.phase_3_status.t3_4.time != 0.0:
+            _is_change = True
+            plot_task.p3_t3_4_time = request.plot_details.phase_3_status.t3_4.time
+        if request.plot_details.phase_3_status.t3_4.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t3_4_cpu = request.plot_details.phase_3_status.t3_4.cpu_usage
+
+        if request.plot_details.phase_3_status.t4_5.time != 0.0:
+            _is_change = True
+            plot_task.p3_t4_5_time = request.plot_details.phase_3_status.t4_5.time
+        if request.plot_details.phase_3_status.t4_5.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t4_5_cpu = request.plot_details.phase_3_status.t4_5.cpu_usage
+
+        if request.plot_details.phase_3_status.t5_6.time != 0.0:
+            _is_change = True
+            plot_task.p3_t5_6_time = request.plot_details.phase_3_status.t5_6.time
+        if request.plot_details.phase_3_status.t5_6.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t5_6_cpu = request.plot_details.phase_3_status.t5_6.cpu_usage
+
+        if request.plot_details.phase_3_status.t6_7.time != 0.0:
+            _is_change = True
+            plot_task.p3_t6_7_time = request.plot_details.phase_3_status.t6_7.time
+        if request.plot_details.phase_3_status.t6_7.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_t6_7_cpu = request.plot_details.phase_3_status.t6_7.cpu_usage
+        
+        # p3 total
+        if request.plot_details.phase_3_status.time != 0.0:
+            _is_change = True
+            plot_task.p3_total_time = request.plot_details.phase_3_status.time
+        if request.plot_details.phase_3_status.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p3_total_cpu = request.plot_details.phase_3_status.cpu_usage
+        
+        # p4 total
+        if request.plot_details.phase_4_status.time != 0.0:
+            _is_change = True
+            plot_task.p4_total_time = request.plot_details.phase_4_status.time
+        if request.plot_details.phase_4_status.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.p4_total_cpu = request.plot_details.phase_4_status.cpu_usage
+
+        # total
+        if request.plot_details.total_time.time != 0.0:
+            _is_change = True
+            plot_task.total_time = request.plot_details.total_time.time
+
+        if request.plot_details.total_time.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.total_cpu = request.plot_details.total_time.cpu_usage
+        
+        # copy
+        if request.plot_details.copy_time.time != 0.0:
+            _is_change = True
+            plot_task.copy_time = request.plot_details.copy_time.time
+        
+        if request.plot_details.copy_time.cpu_usage != 0.0:
+            _is_change = True
+            plot_task.copy_cpu = request.plot_details.copy_time.cpu_usage
+
+        # todo 2021-05-24 finish need test over
         
         if _is_change:
             session.add(plot_task)

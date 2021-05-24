@@ -25,6 +25,8 @@ message PlotP1Status {
     PlotPhaseStatus t6 = 8;
     PlotPhaseStatus t7 = 9;
     int32 now = 10;
+    float time = 11;
+    float cpu_usage = 12;
 }
 
 message PlotP2Status {
@@ -37,6 +39,8 @@ message PlotP2Status {
     PlotP2BaseStatus t2 = 7;
     PlotP2BaseStatus t1 = 8;
     int32 now = 9;
+    float time = 10;
+    float cpu_usage = 11;
 }
 
 message PlotP3Status {
@@ -48,6 +52,8 @@ message PlotP3Status {
     PlotPhaseStatus t5_6 = 6;
     PlotPhaseStatus t6_7 = 7;
     string now = 8;
+    float time = 9;
+    float cpu_usage = 10;
 }
 
 message PlotDetails {

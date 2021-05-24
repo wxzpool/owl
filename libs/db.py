@@ -21,6 +21,16 @@ def get_db_session(db_file):
     return sessionmaker(bind=engine)()
 
 
+class DBPlotStop(DBBase):
+    __tablename__ = 'plot_stop'
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
+    update_time = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, comment="创建时间")
+    worker_id = Column(String(32), comment="本机唯一ID, uuid", nullable=False)
+    # task_id = sha256(worker_id#time.time()#fpk#ppk#ksize#cache1#cache2#threads#buffer#dest_type#dest_path)
+    task_id = Column(String(64), comment="任务唯一id, hash256", nullable=False, unique=True)
+    
+
 class DBPlotTasks(DBBase):
     __tablename__ = 'plot_tasks'
     
@@ -45,6 +55,7 @@ class DBPlotTasks(DBBase):
     stripe_size = Column(Integer, comment="stripe size", default=0)
     buckets = Column(Integer, comment="buckets", default=0)
     progress = Column(Float, comment="P图进度", default=0.0)
+    
     p1_t1_time = Column(Float, comment="该阶段花费时间", default=0.0)
     p1_t1_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
     p1_t2_time = Column(Float, comment="该阶段花费时间", default=0.0)
@@ -62,22 +73,45 @@ class DBPlotTasks(DBBase):
     p1_total_time = Column(Float, comment="p1总耗时", default=0.0)
     p1_total_cpu = Column(Float, comment="p1总耗用cpu", default=0.0)
     p1_table_1_now_size = Column(Integer, comment="table_1_now_size大小", default=0)
-    p2_t7_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t7_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t6_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t6_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t5_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t5_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t4_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t4_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t3_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t3_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t2_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t2_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
-    p2_t1_time = Column(Float, comment="该阶段花费时间", default=0.0)
-    p2_t1_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t7_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t7_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t7_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t7_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t6_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t6_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t6_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t6_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t5_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t5_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t5_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t5_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t4_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t4_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t4_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t4_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t3_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t3_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t3_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t3_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t2_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t2_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t2_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t2_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
+    p2_t1_scan_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t1_scan_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    p2_t1_sort_time = Column(Float, comment="该阶段花费时间", default=0.0)
+    p2_t1_sort_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
+    
     p2_total_time = Column(Float, comment="p2总耗时", default=0.0)
     p2_total_cpu = Column(Float, comment="p2总耗用cpu", default=0.0)
+    
     p3_t1_2_time = Column(Float, comment="该阶段花费时间", default=0.0)
     p3_t1_2_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
     p3_t2_3_time = Column(Float, comment="该阶段花费时间", default=0.0)
@@ -92,8 +126,10 @@ class DBPlotTasks(DBBase):
     p3_t6_7_cpu = Column(Float, comment="该阶段cpu使用", default=0.0)
     p3_total_time = Column(Float, comment="p3总耗时", default=0.0)
     p3_total_cpu = Column(Float, comment="p3总耗用cpu", default=0.0)
+    
     p4_total_time = Column(Float, comment="p4总耗时", default=0.0)
     p4_total_cpu = Column(Float, comment="p4总耗用cpu", default=0.0)
+    
     total_time = Column(Float, comment="p1-4总耗时", default=0.0)
     total_cpu = Column(Float, comment="p1-4总耗用cpu", default=0.0)
     copy_time = Column(Float, comment="复制时间", default=0.0)
@@ -101,3 +137,4 @@ class DBPlotTasks(DBBase):
     dest_type = Column(String(5), comment="最终写入类型", server_default="nfs")
     dest_path = Column(String(1024), comment="最终写入路径", nullable=False)
     dest_file_name = Column(String(1024), comment="最终文件名", default=0.0)
+    stage_now = Column(Integer, comment="当前阶段", default=0)
