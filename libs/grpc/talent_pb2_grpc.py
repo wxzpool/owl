@@ -44,6 +44,11 @@ class PlotManagerStub(object):
                 request_serializer=talent__pb2.Empty.SerializeToString,
                 response_deserializer=talent__pb2.PlotTaskStatusAllResponse.FromString,
                 )
+        self.get_store_dest = channel.unary_unary(
+                '/talent.PlotManager/get_store_dest',
+                request_serializer=talent__pb2.Empty.SerializeToString,
+                response_deserializer=talent__pb2.PlotStoreDestResponse.FromString,
+                )
 
 
 class PlotManagerServicer(object):
@@ -85,6 +90,12 @@ class PlotManagerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def get_store_dest(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_PlotManagerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -117,6 +128,11 @@ def add_PlotManagerServicer_to_server(servicer, server):
                     servicer.get_plot_tasks,
                     request_deserializer=talent__pb2.Empty.FromString,
                     response_serializer=talent__pb2.PlotTaskStatusAllResponse.SerializeToString,
+            ),
+            'get_store_dest': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_store_dest,
+                    request_deserializer=talent__pb2.Empty.FromString,
+                    response_serializer=talent__pb2.PlotStoreDestResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -227,5 +243,22 @@ class PlotManager(object):
         return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/get_plot_tasks',
             talent__pb2.Empty.SerializeToString,
             talent__pb2.PlotTaskStatusAllResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def get_store_dest(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/get_store_dest',
+            talent__pb2.Empty.SerializeToString,
+            talent__pb2.PlotStoreDestResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -146,6 +146,10 @@ message Empty {
     // 空参数必须用一个空消息
 }
 
+message PlotStoreDestResponse {
+    string dest = 1;
+}
+
 service PlotManager {
     rpc plot_task_create(PlotTaskCreateRequest) returns (PlotTaskStatusResponse);
     rpc plot_task_status(PlotTaskIdRequest) returns (PlotTaskStatus);
@@ -153,6 +157,7 @@ service PlotManager {
     rpc plot_task_stop(PlotTaskStopRequest) returns (PlotTaskStatusResponse);
     rpc plot_task_update(PlotTaskStatus) returns (PlotTaskUpdateResponse);
     rpc get_plot_tasks(Empty) returns (PlotTaskStatusAllResponse);
+    rpc get_store_dest(Empty) returns (PlotStoreDestResponse);
 }
 
 

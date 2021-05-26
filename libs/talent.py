@@ -25,6 +25,22 @@ _ONE_DAY = datetime.timedelta(days=1)
 class TalentManager(pb2_grpc.PlotManagerServicer):
     def __init__(self, cfg):
         self.cfg: TalentCFG = cfg
+    
+    def get_store_dest(self, request, context):
+        """
+        这是一个临时函数
+        
+        此函数为重要的分配函数，主要用于获得下一个存储的目录。
+        
+        当overlord上线后此函数将丢弃
+        
+        :param request:
+        :param context:
+        :return:
+        """
+        ret: pb2_ref.PlotStoreDestResponse = pb2.PlotStoreDestResponse()
+        ret.dest = ""
+        return ret
         
     def plot_task_create(self, request, context):
         # print(request)
@@ -452,8 +468,15 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         return self._get_task_status(status=_status)
         
     def _get_task_status(self, status=None):
+        """
+        返回指定状态的数据，如果没有指定状态，则返回当前数据库中所有数据
+        
+        :param status: [received, pending, started, running, finished]
+        :return:
+        """
         session: SqlalchemySession = db.get_db_session(self.cfg.db_file)
         ret: pb2_ref.PlotTaskStatusAllResponse = pb2.PlotTaskStatusAllResponse()
+        
         if status is None:
             has_task = session.query(db.DBPlotTasks).all()
         else:
@@ -484,6 +507,8 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
 class TalentCFG(object):
     db_file: str = "/tmp/owl/talent.db"
     worker_id: str = "server1"
+    overlord: str = "192.168.1.100"
+    grpc_port: int = 50051
 
 
 class Talent(multiprocessing.Process):
@@ -549,7 +574,7 @@ class Talent(multiprocessing.Process):
         self._app_check()
         self._rpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
         pb2_grpc.add_PlotManagerServicer_to_server(TalentManager(self.cfg), self._rpc_server)
-        self._rpc_server.add_insecure_port('[::]:50051')
+        self._rpc_server.add_insecure_port('[::]:%s' % self.cfg.grpc_port)
         self._rpc_server.start()
     
         while True:

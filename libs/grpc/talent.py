@@ -170,6 +170,11 @@ class Empty(betterproto.Message):
     pass
 
 
+@dataclass
+class PlotStoreDestResponse(betterproto.Message):
+    dest: str = betterproto.string_field(1)
+
+
 class PlotManagerStub(betterproto.ServiceStub):
     async def plot_task_create(
         self,
@@ -256,4 +261,13 @@ class PlotManagerStub(betterproto.ServiceStub):
             "/talent.PlotManager/get_plot_tasks",
             request,
             PlotTaskStatusAllResponse,
+        )
+
+    async def get_store_dest(self) -> PlotStoreDestResponse:
+        request = Empty()
+
+        return await self._unary_unary(
+            "/talent.PlotManager/get_store_dest",
+            request,
+            PlotStoreDestResponse,
         )
