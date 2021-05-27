@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-from sqlalchemy import Column, String, Integer, create_engine, Float, DateTime, Time
+from sqlalchemy import Column, String, Integer, create_engine, Float, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import datetime
@@ -43,6 +43,7 @@ class DBPlotTasks(DBBase):
     running_time = Column(DateTime, comment="任务运行的时间", nullable=True)
     finished_time = Column(DateTime, comment="任务结束的时间", nullable=True)
     worker_id = Column(String(32), comment="本机唯一ID, uuid", nullable=False)
+    remarks = Column(Text, comment="备注", nullable=True)
     # task_id = sha256(worker_id#time.time()#fpk#ppk#ksize#cache1#cache2#threads#buffer#dest_type#dest_path)
     task_id = Column(String(64), comment="任务唯一id, hash256", nullable=False, unique=True)
     plot_pid = Column(Integer, comment="P图任务PID", default=0)

@@ -132,7 +132,8 @@ class PlotTaskStatus(betterproto.Message):
     started_time: float = betterproto.double_field(9)
     running_time: float = betterproto.double_field(10)
     finished_time: float = betterproto.double_field(11)
-    plot_details: "PlotDetails" = betterproto.message_field(12)
+    remarks: str = betterproto.string_field(12)
+    plot_details: "PlotDetails" = betterproto.message_field(13)
 
 
 @dataclass
@@ -176,8 +177,14 @@ class Empty(betterproto.Message):
 
 
 @dataclass
-class PlotStoreDestResponse(betterproto.Message):
-    dest: str = betterproto.string_field(1)
+class GetPlotByCacheRequest(betterproto.Message):
+    status: str = betterproto.string_field(1)
+    cache1: str = betterproto.string_field(2)
+
+
+@dataclass
+class PlotStatus(betterproto.Message):
+    status: str = betterproto.string_field(1)
 
 
 class PlotManagerStub(betterproto.ServiceStub):
@@ -246,6 +253,7 @@ class PlotManagerStub(betterproto.ServiceStub):
         started_time: float = 0,
         running_time: float = 0,
         finished_time: float = 0,
+        remarks: str = "",
         plot_details: Optional["PlotDetails"] = None,
     ) -> PlotTaskUpdateResponse:
         request = PlotTaskStatus()
@@ -260,6 +268,7 @@ class PlotManagerStub(betterproto.ServiceStub):
         request.started_time = started_time
         request.running_time = running_time
         request.finished_time = finished_time
+        request.remarks = remarks
         if plot_details is not None:
             request.plot_details = plot_details
 
@@ -269,8 +278,9 @@ class PlotManagerStub(betterproto.ServiceStub):
             PlotTaskUpdateResponse,
         )
 
-    async def get_plot_tasks(self) -> PlotTaskStatusAllResponse:
-        request = Empty()
+    async def get_plot_tasks(self, *, status: str = "") -> PlotTaskStatusAllResponse:
+        request = PlotStatus()
+        request.status = status
 
         return await self._unary_unary(
             "/talent.PlotManager/get_plot_tasks",
@@ -278,11 +288,15 @@ class PlotManagerStub(betterproto.ServiceStub):
             PlotTaskStatusAllResponse,
         )
 
-    async def get_store_dest(self) -> PlotStoreDestResponse:
-        request = Empty()
+    async def get_plot_by_cache(
+        self, *, status: str = "", cache1: str = ""
+    ) -> PlotTaskStatusAllResponse:
+        request = GetPlotByCacheRequest()
+        request.status = status
+        request.cache1 = cache1
 
         return await self._unary_unary(
-            "/talent.PlotManager/get_store_dest",
+            "/talent.PlotManager/get_plot_by_cache",
             request,
-            PlotStoreDestResponse,
+            PlotTaskStatusAllResponse,
         )

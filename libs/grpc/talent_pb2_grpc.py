@@ -41,13 +41,13 @@ class PlotManagerStub(object):
                 )
         self.get_plot_tasks = channel.unary_unary(
                 '/talent.PlotManager/get_plot_tasks',
-                request_serializer=talent__pb2.Empty.SerializeToString,
+                request_serializer=talent__pb2.PlotStatus.SerializeToString,
                 response_deserializer=talent__pb2.PlotTaskStatusAllResponse.FromString,
                 )
-        self.get_store_dest = channel.unary_unary(
-                '/talent.PlotManager/get_store_dest',
-                request_serializer=talent__pb2.Empty.SerializeToString,
-                response_deserializer=talent__pb2.PlotStoreDestResponse.FromString,
+        self.get_plot_by_cache = channel.unary_unary(
+                '/talent.PlotManager/get_plot_by_cache',
+                request_serializer=talent__pb2.GetPlotByCacheRequest.SerializeToString,
+                response_deserializer=talent__pb2.PlotTaskStatusAllResponse.FromString,
                 )
 
 
@@ -90,7 +90,7 @@ class PlotManagerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def get_store_dest(self, request, context):
+    def get_plot_by_cache(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -126,13 +126,13 @@ def add_PlotManagerServicer_to_server(servicer, server):
             ),
             'get_plot_tasks': grpc.unary_unary_rpc_method_handler(
                     servicer.get_plot_tasks,
-                    request_deserializer=talent__pb2.Empty.FromString,
+                    request_deserializer=talent__pb2.PlotStatus.FromString,
                     response_serializer=talent__pb2.PlotTaskStatusAllResponse.SerializeToString,
             ),
-            'get_store_dest': grpc.unary_unary_rpc_method_handler(
-                    servicer.get_store_dest,
-                    request_deserializer=talent__pb2.Empty.FromString,
-                    response_serializer=talent__pb2.PlotStoreDestResponse.SerializeToString,
+            'get_plot_by_cache': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_plot_by_cache,
+                    request_deserializer=talent__pb2.GetPlotByCacheRequest.FromString,
+                    response_serializer=talent__pb2.PlotTaskStatusAllResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -241,13 +241,13 @@ class PlotManager(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/get_plot_tasks',
-            talent__pb2.Empty.SerializeToString,
+            talent__pb2.PlotStatus.SerializeToString,
             talent__pb2.PlotTaskStatusAllResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def get_store_dest(request,
+    def get_plot_by_cache(request,
             target,
             options=(),
             channel_credentials=None,
@@ -257,8 +257,8 @@ class PlotManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/get_store_dest',
-            talent__pb2.Empty.SerializeToString,
-            talent__pb2.PlotStoreDestResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/talent.PlotManager/get_plot_by_cache',
+            talent__pb2.GetPlotByCacheRequest.SerializeToString,
+            talent__pb2.PlotTaskStatusAllResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

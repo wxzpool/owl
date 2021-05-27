@@ -115,7 +115,8 @@ message PlotTaskStatus {
     double started_time = 9;
     double running_time = 10;
     double finished_time = 11;
-    PlotDetails plot_details = 12;
+    string remarks = 12;
+    PlotDetails plot_details = 13;
 }
 
 message PlotTaskStatusAllResponse {
@@ -151,8 +152,13 @@ message Empty {
     // 空参数必须用一个空消息
 }
 
-message PlotStoreDestResponse {
-    string dest = 1;
+message GetPlotByCacheRequest {
+    string status = 1;
+    string cache1 = 2;
+}
+
+message PlotStatus {
+    string status = 1;
 }
 
 service PlotManager {
@@ -161,8 +167,8 @@ service PlotManager {
     rpc plot_task_status_all(Empty) returns (PlotTaskStatusAllResponse);
     rpc plot_task_stop(PlotTaskStopRequest) returns (PlotTaskStatusResponse);
     rpc plot_task_update(PlotTaskStatus) returns (PlotTaskUpdateResponse);
-    rpc get_plot_tasks(Empty) returns (PlotTaskStatusAllResponse);
-    rpc get_store_dest(Empty) returns (PlotStoreDestResponse);
+    rpc get_plot_tasks(PlotStatus) returns (PlotTaskStatusAllResponse);
+    rpc get_plot_by_cache(GetPlotByCacheRequest) returns (PlotTaskStatusAllResponse);
 }
 
 

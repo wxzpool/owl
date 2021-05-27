@@ -12,11 +12,13 @@ import subprocess
 import shlex
 import datetime
 import socket
+import time
 
 MpManagerDict = dict
 
 
 class PlotterCFG(object):
+    task_id: str
     bin: str = "/tmp/chia"
     name: str
     fpk: str
@@ -85,6 +87,8 @@ class Plotter(multiprocessing.Process):
     
     def run(self):
         d = self._d
+        d("sleep 1 for supervisor write back status")
+        time.sleep(1)
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         _pid = os.getpid()

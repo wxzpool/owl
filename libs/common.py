@@ -33,3 +33,13 @@ class ProcessStatus(object):
     status: ProcessRuntimeStatus
     heartbeat: int
 
+
+def get_ksize_capacity(ksize: int) -> int:
+    # 单位MB
+    if type(ksize) != int:
+        return 0
+    if ksize == 32:
+        return 256*1024
+    if ksize == 33:
+        return 558*1024
+    return 0

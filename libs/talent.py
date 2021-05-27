@@ -143,6 +143,8 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         # ret.plot_details.fpk = plot_task.fpk
         # ret.plot_details.ppk =
         # print("ret: %s" % ret)
+        # todo callback overlord
+        
         return ret
 
     def plot_task_status_all(self, request, context):
@@ -175,7 +177,10 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         if request.status != "":
             _is_change = True
             plot_task.status = request.status
-        # todo 2021-05-24 finish need test
+        if request.remarks != "":
+            _is_change = True
+            plot_task.remarks = request.remarks
+        # todo 2021-05-24 finish 未全面测试
         if request.pending_time != 0.0:
             _is_change = True
             plot_task.pending_time = datetime.datetime.fromtimestamp(request.pending_time)
@@ -490,10 +495,22 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         return ret
     
     def get_plot_tasks(self, request, context):
-        _status = 'received'
+        if request.status == "":
+            _status = 'received'
+        else:
+            _status = request.status
         return self._get_task_status(status=_status)
+    
+    def get_plot_by_cache(self, request: pb2_ref.GetPlotByCacheRequest, context):
+        if request.status != "":
+            _status = request.status
+        else:
+            _status = "running"
+        if request.cache1 == "":
+            raise RuntimeError("cache1 not defined")
+        return self._get_task_status(_status, request.cache1)
         
-    def _get_task_status(self, status=None):
+    def _get_task_status(self, status=None, cache1=None):
         """
         返回指定状态的数据，如果没有指定状态，则返回当前数据库中所有数据
         
@@ -503,10 +520,15 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         session: SqlalchemySession = db.get_db_session(self.cfg.db_file)
         ret: pb2_ref.PlotTaskStatusAllResponse = pb2.PlotTaskStatusAllResponse()
         
-        if status is None:
-            has_task = session.query(db.DBPlotTasks).all()
-        else:
+        if status is not None and cache1 is None:
             has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.status == status).all()
+        elif status is None and cache1 is not None:
+            has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.cache1 == cache1).all()
+        elif status is not None and cache1 is not None:
+            has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.status == status).filter(db.DBPlotTasks.cache1 == cache1).all()
+        else:
+            has_task = session.query(db.DBPlotTasks).all()
+        
         _t: db.DBPlotTasks
         for _t in has_task:
             _ret: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
