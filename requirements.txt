@@ -2,3 +2,4 @@ psutil
 grpcio
 grpcio-tools
 sqlalchemy
+protobuf3

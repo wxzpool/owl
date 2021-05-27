@@ -127,7 +127,12 @@ class PlotTaskStatus(betterproto.Message):
     plot_pid: int = betterproto.int32_field(4)
     log_pid: int = betterproto.int32_field(5)
     status: str = betterproto.string_field(6)
-    plot_details: "PlotDetails" = betterproto.message_field(7)
+    received_time: float = betterproto.double_field(7)
+    pending_time: float = betterproto.double_field(8)
+    started_time: float = betterproto.double_field(9)
+    running_time: float = betterproto.double_field(10)
+    finished_time: float = betterproto.double_field(11)
+    plot_details: "PlotDetails" = betterproto.message_field(12)
 
 
 @dataclass
@@ -236,6 +241,11 @@ class PlotManagerStub(betterproto.ServiceStub):
         plot_pid: int = 0,
         log_pid: int = 0,
         status: str = "",
+        received_time: float = 0,
+        pending_time: float = 0,
+        started_time: float = 0,
+        running_time: float = 0,
+        finished_time: float = 0,
         plot_details: Optional["PlotDetails"] = None,
     ) -> PlotTaskUpdateResponse:
         request = PlotTaskStatus()
@@ -245,6 +255,11 @@ class PlotManagerStub(betterproto.ServiceStub):
         request.plot_pid = plot_pid
         request.log_pid = log_pid
         request.status = status
+        request.received_time = received_time
+        request.pending_time = pending_time
+        request.started_time = started_time
+        request.running_time = running_time
+        request.finished_time = finished_time
         if plot_details is not None:
             request.plot_details = plot_details
 

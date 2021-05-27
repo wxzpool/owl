@@ -9,6 +9,7 @@ import time
 import signal
 from struct import unpack, calcsize
 import socket
+from . import log_filter
 
 MpManagerDict = dict
 
@@ -77,6 +78,7 @@ class LogReceiver(multiprocessing.Process):
         # s.listen(1)
         # s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, True)
         int_size = calcsize("I")
+        task_log = log_filter.LogFilter()
         
         while True:
             try:
@@ -91,10 +93,11 @@ class LogReceiver(multiprocessing.Process):
                 #     5 * 60 * 1000
                 # ))
                 # data = client.recv(4096)
-                d("data: %s\n" % data.decode())
-                if data.decode() == 'ping':
-                    s.sendto(b'pong', self.sock_file)
-                d("Received {0} bytes of data.".format(sys.getsizeof(data)))
+                line = data.decode()
+                print("data: %s\n" % line)
+                # if data.decode() == 'ping':
+                #     s.sendto(b'pong', self.sock_file)
+                # d("Received {0} bytes of data.".format(sys.getsizeof(data)))
             except Exception as e:
                 print(e)
                 continue

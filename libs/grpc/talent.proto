@@ -110,7 +110,12 @@ message PlotTaskStatus {
     int32 plot_pid = 4;
     int32 log_pid = 5;
     string status = 6;
-    PlotDetails plot_details = 7;
+    double received_time = 7;
+    double pending_time = 8;
+    double started_time = 9;
+    double running_time = 10;
+    double finished_time = 11;
+    PlotDetails plot_details = 12;
 }
 
 message PlotTaskStatusAllResponse {

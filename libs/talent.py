@@ -16,6 +16,7 @@ import libs.grpc.talent_pb2 as pb2
 import libs.grpc.talent_pb2_grpc as pb2_grpc
 from libs import db
 from sqlalchemy.orm.session import Session as SqlalchemySession
+import datetime
 
 
 MpManagerDict = dict
@@ -58,10 +59,11 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
                 or plot_config.ksize == "" \
                 or plot_config.threads == "" \
                 or plot_config.buffer == "" \
-                or plot_config.cache1 == "" \
-                or plot_config.cache2 == "":
+                or plot_config.cache1 == "":
             ret.msg = "params miss"
             return ret
+        if plot_config.cache2 == "":
+            plot_config.cache2 = plot_config.cache1
         session: SqlalchemySession = db.get_db_session(self.cfg.db_file)
         has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.task_id == task_id).all()
         if len(has_task) > 0:
@@ -80,6 +82,7 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         plot_task.cache2 = plot_config.cache2
         plot_task.dest_type = plot_config.dest.type
         plot_task.dest_path = plot_config.dest.path
+        plot_task.received_time = datetime.datetime.now()
         # print(plot_task)
         session.add(plot_task)
         try:
@@ -115,6 +118,16 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         ret.plot_pid = plot_task.plot_pid
         ret.log_pid = plot_task.log_pid
         ret.status = plot_task.status
+        if type(plot_task.received_time) == datetime.datetime:
+            ret.received_time = plot_task.received_time.timestamp()
+        if type(plot_task.pending_time) == datetime.datetime:
+            ret.pending_time = plot_task.pending_time.timestamp()
+        if type(plot_task.started_time) == datetime.datetime:
+            ret.started_time = plot_task.started_time.timestamp()
+        if type(plot_task.running_time) == datetime.datetime:
+            ret.running_time = plot_task.running_time.timestamp()
+        if type(plot_task.finished_time) == datetime.datetime:
+            ret.finished_time = plot_task.finished_time.timestamp()
         # print(dir(ret.plot_details))
         # print(dir(plot_task))
         for _k in dir(ret.plot_details):
@@ -163,6 +176,19 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
             _is_change = True
             plot_task.status = request.status
         # todo 2021-05-24 finish need test
+        if request.pending_time != 0.0:
+            _is_change = True
+            plot_task.pending_time = datetime.datetime.fromtimestamp(request.pending_time)
+        if request.started_time != 0.0:
+            _is_change = True
+            plot_task.started_time = datetime.datetime.fromtimestamp(request.started_time)
+        if request.running_time != 0.0:
+            _is_change = True
+            plot_task.running_time = datetime.datetime.fromtimestamp(request.running_time)
+        if request.finished_time != 0.0:
+            _is_change = True
+            plot_task.finished_time = datetime.datetime.fromtimestamp(request.finished_time)
+            
         if request.plot_details.fpk != "":
             _is_change = True
             plot_task.fpk = request.plot_details.fpk
@@ -490,6 +516,17 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
             _ret.plot_pid = _t.plot_pid
             _ret.log_pid = _t.log_pid
             _ret.status = _t.status
+            if type(_t.received_time) == datetime.datetime:
+                _ret.received_time = _t.received_time.timestamp()
+            if type(_t.pending_time) == datetime.datetime:
+                _ret.pending_time = _t.pending_time.timestamp()
+            if type(_t.started_time) == datetime.datetime:
+                _ret.started_time = _t.started_time.timestamp()
+            if type(_t.running_time) == datetime.datetime:
+                _ret.running_time = _t.running_time.timestamp()
+            if type(_t.finished_time) == datetime.datetime:
+                _ret.finished_time = _t.finished_time.timestamp()
+            # print(dir(ret.plot_details))
             for _k in dir(_ret.plot_details):
                 if _k[0] == "_":
                     continue
