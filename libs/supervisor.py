@@ -4,8 +4,7 @@ import os
 import sys
 import multiprocessing
 import time
-from libs import daemon
-from libs.common import ProcessStatus
+from libs.sturcts import ProcessStatus, CacheCFG, PlotProcessCFG, SupervisorCFG
 from libs.log_receiver import LogReceiverCFG, LogReceiver
 from libs.plotter import PlotterCFG, Plotter
 import signal
@@ -19,7 +18,7 @@ import grpc
 import libs.grpc.talent as pb2_ref
 import libs.grpc.talent_pb2 as pb2
 import libs.grpc.talent_pb2_grpc as pb2_grpc
-from libs.common import get_ksize_capacity
+from .common import get_ksize_capacity
 
 MpManagerDict = dict
 
@@ -30,32 +29,6 @@ class ProcessList(object):
     logger: LogReceiver
 
 
-class CacheCFG(object):
-    dest: str
-    capacity: int
-
-
-class PlotProcessCFG(object):
-    bin: str = "/tmp/chia"
-    waiting: int = 1200
-    cache1: [CacheCFG]
-    cache2: [CacheCFG]
-    dests: [str]
-    
-    def get_cache1_info(self, t):
-        for c in self.cache1:
-            if t == c.dest:
-                return t
-        return None
-
-
-class SupervisorCFG(object):
-    sock_path: str = "/tmp"
-    grpc_host: str = "127.0.0.1:50051"
-    sleep_time: int = 10
-    plot_process_config: PlotProcessCFG
-    
-    
 class Supervisor(multiprocessing.Process):
     _app_cfg: SupervisorCFG
     _manager: MpManagerDict = None
@@ -96,7 +69,7 @@ class Supervisor(multiprocessing.Process):
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
             with open("/tmp/supervisor.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % (_pid, _now, msg))
+                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
     def _start_sock_logger(self, name, sock_path) -> LogReceiver:
@@ -124,7 +97,7 @@ class Supervisor(multiprocessing.Process):
         ret: [PlotterCFG] = list()
         # 返回的是一个PlotProcessCFG元素的数组
         with grpc.insecure_channel(self.cfg.grpc_host) as channel:
-            d("获取所有状态为{}的记录".format(status))
+            # d("获取所有状态为{}的记录".format(status))
             stub = pb2_grpc.PlotManagerStub(channel)
             resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(pb2.PlotStatus(status=status))
         for task in resp.tasks:
@@ -132,13 +105,16 @@ class Supervisor(multiprocessing.Process):
             plot_cfg.name = task.task_id
             plot_cfg.task_id = task.task_id
             plot_cfg.fpk = task.plot_details.fpk
+            # d(task.plot_details.fpk)
             plot_cfg.ppk = task.plot_details.ppk
             plot_cfg.thread = task.plot_details.threads
             plot_cfg.mem = task.plot_details.buffer
             plot_cfg.cache1 = task.plot_details.cache1
+            # d(task.plot_details.cache1)
             plot_cfg.cache2 = task.plot_details.cache2
             plot_cfg.dest = task.plot_details.dest_path
             plot_cfg.ksize = task.plot_details.ksize
+            
             ret.append(plot_cfg)
         return ret
     
@@ -163,7 +139,8 @@ class Supervisor(multiprocessing.Process):
             task_status.task_id = pl.task_id
             task_status.status = "stopped"
             self._update_task(task_status)
-            os.kill(pl.plotter.pid, signal.SIGKILL)
+            pl.plotter.terminate()
+            # os.kill(pl.plotter.pid, signal.SIGKILL)
             os.kill(pl.logger.pid, signal.SIGTERM)
         d("Supervisor stopped")
         raise SystemExit(0)
@@ -177,15 +154,24 @@ class Supervisor(multiprocessing.Process):
         self._check_runtime()
         while True:
             # 检查现有任务状态
+            d("当前任务数量: %s" % len(self._process_list))
             for pl in self._process_list:
                 # todo 监控进程是否退出
                 d(pl.plotter.pid)
             # 定时获取任务， grpc调用talent
             # 应该先执行所有pending的任务
             for _status in ["pending", "received"]:
-                for t in self._get_task(_status):
+                _all_tasks = self._get_task(_status)
+                d("%s状态数量: %s" % (_status, len(_all_tasks)))
+                for t in _all_tasks:
+                    d("Task: %s" % t.task_id)
+                    d(t.bin)
+                    d(t.cache1)
                     # todo 机器应该有最大上限(按照ssd划分)
+                    # todo cache2 暂时不支持
+                    # print(t.cache1)
                     ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
+                    d("ssd 容量: %s" % ssd_capacity)
                     # 无法获取ssd容量会引起错误，回写状态
                     if ssd_capacity == 0:
                         d("无法获取ssd(%s)容量" % t.cache1)
@@ -214,6 +200,7 @@ class Supervisor(multiprocessing.Process):
                     # 返回获取运行数量
                     running_number = len(resp.tasks)
                     ksize_capacity = get_ksize_capacity(t.ksize)
+                    # print(ksize_capacity)
                     max_proc = round(ssd_capacity / ksize_capacity)
                     if running_number >= max_proc:
                         task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()

@@ -119,80 +119,82 @@ with grpc.insecure_channel('127.0.0.1:50051') as channel:
 
 print("模拟主控supervisor排队任务")
 
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("首先获取所有状态为received的记录")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(pb2.Empty())
-    for task in resp.tasks:
-        print("task_id: {}, status: {}, plot_id: {}, plot_progress: {}".format(
-            task.task_id,
-            task.status,
-            task.plot_details.id,
-            task.plot_details.progress
-        ))
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("首先获取所有状态为received的记录")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(pb2.Empty())
+#     for task in resp.tasks:
+#         print("task_id: {}, status: {}, plot_id: {}, plot_progress: {}".format(
+#             task.task_id,
+#             task.status,
+#             task.plot_details.id,
+#             task.plot_details.progress
+#         ))
+#
+#
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("排队task_id_test_001")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
+#     req.status = "pending"
+#     req.pending_time = time.time()
+#     resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
+#     print("is_success: %s" % resp.is_success)
+#     print("msg: %s" % resp.msg)
+#
+#
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("获取任务task_id_test_001的状态")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest(task_id="task_id_test_001")
+#     resp: pb2_ref.PlotTaskStatus = stub.plot_task_status(req)
+#     print("existed: %s" % resp.existed)
+#     print("status: %s" % resp.status)
+#     print("pending time: %s" % resp.pending_time)
+#     print(resp.plot_details)
+#
+#
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("task_id_test_001 任务开始")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
+#     req.status = "started"
+#     req.started_time = time.time()
+#     req.log_pid = 123
+#     req.plot_pid = 456
+#     resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
+#     print("is_success: %s" % resp.is_success)
+#     print("msg: %s" % resp.msg)
+#
+#
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("获取任务task_id_test_001的状态")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest(task_id="task_id_test_001")
+#     resp: pb2_ref.PlotTaskStatus = stub.plot_task_status(req)
+#     print("existed: %s" % resp.existed)
+#     print("status: %s" % resp.status)
+#     print("started time: %s" % resp.started_time)
+#     print("logger: %s, plotter: %s" % (resp.log_pid, resp.plot_pid))
+#     print(resp.plot_details)
+#
+# with grpc.insecure_channel('127.0.0.1:50051') as channel:
+#     print("task_id_test_001 任务运行")
+#     stub = pb2_grpc.PlotManagerStub(channel)
+#     req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
+#     req.status = "running"
+#     req.running_time = time.time()
+#     req.plot_details.id = "some id"
+#     req.plot_details.memo = "memo xxx"
+#     req.plot_details.stage_now = 0
+#     req.plot_details.buckets = 128
+#     req.plot_details.stripe_size = 65536
+#     req.plot_details.progress = 1.0
+#     resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
+#     print("is_success: %s" % resp.is_success)
+#     print("msg: %s" % resp.msg)
 
-
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("排队task_id_test_001")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
-    req.status = "pending"
-    req.pending_time = time.time()
-    resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
-    print("is_success: %s" % resp.is_success)
-    print("msg: %s" % resp.msg)
-
-
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("获取任务task_id_test_001的状态")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest(task_id="task_id_test_001")
-    resp: pb2_ref.PlotTaskStatus = stub.plot_task_status(req)
-    print("existed: %s" % resp.existed)
-    print("status: %s" % resp.status)
-    print("pending time: %s" % resp.pending_time)
-    print(resp.plot_details)
-
-
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("task_id_test_001 任务开始")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
-    req.status = "started"
-    req.started_time = time.time()
-    req.log_pid = 123
-    req.plot_pid = 456
-    resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
-    print("is_success: %s" % resp.is_success)
-    print("msg: %s" % resp.msg)
-
-
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("获取任务task_id_test_001的状态")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest(task_id="task_id_test_001")
-    resp: pb2_ref.PlotTaskStatus = stub.plot_task_status(req)
-    print("existed: %s" % resp.existed)
-    print("status: %s" % resp.status)
-    print("started time: %s" % resp.started_time)
-    print("logger: %s, plotter: %s" % (resp.log_pid, resp.plot_pid))
-    print(resp.plot_details)
-
-with grpc.insecure_channel('127.0.0.1:50051') as channel:
-    print("task_id_test_001 任务运行")
-    stub = pb2_grpc.PlotManagerStub(channel)
-    req: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus(task_id="task_id_test_001")
-    req.status = "running"
-    req.running_time = time.time()
-    req.plot_details.id = "some id"
-    req.plot_details.memo = "memo xxx"
-    req.plot_details.stage_now = 0
-    req.plot_details.buckets = 128
-    req.plot_details.stripe_size = 65536
-    req.plot_details.progress = 1.0
-    resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(req)
-    print("is_success: %s" % resp.is_success)
-    print("msg: %s" % resp.msg)
+time.sleep(60)
 
 with grpc.insecure_channel('127.0.0.1:50051') as channel:
     print("获取任务task_id_test_001的状态")

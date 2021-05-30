@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 # 每个p图进程都会对应一个日志收集人，收集到的日志会统一通讯给talent并由talent上传给octopus
-import multiprocessing
-from libs.common import ProcessStatus
+# import multiprocessing
+import threading
+from libs.sturcts import ProcessStatus
 import os
 import sys
 import time
@@ -19,11 +20,14 @@ class LogReceiverCFG(object):
     sock_path: str
 
 
-class LogReceiver(multiprocessing.Process):
+# class LogReceiver(multiprocessing.Process):
+class LogReceiver(threading.Thread):
+    # todo LogReceiver 作为单独的脚本，重写
     _app_cfg: LogReceiverCFG
     _manager: MpManagerDict = None
     _app_status: ProcessStatus
     _log_sock = None
+    pid: int
 
     def __init__(self, cfg: LogReceiverCFG, manager: MpManagerDict = None, debug: bool = False, *args, **kwargs):
         self.cfg = cfg
@@ -35,13 +39,13 @@ class LogReceiver(multiprocessing.Process):
         super().__init__(*args, **kwargs)
 
     def _d(self, msg):
-        _name = "LogReceiver-%s" % self.name
+        _name = "LogReceiver-%s" % self.cfg.name
         _pid = os.getpid()
         _now = time.time()
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("/tmp/log_receiver.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % ( _pid, _now, msg))
+            with open("/tmp/log_receiver-%s.log" % self.cfg.name, "a") as log:
+                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
     def terminate(self, *args, **kwargs):
@@ -70,10 +74,10 @@ class LogReceiver(multiprocessing.Process):
             
     def run(self) -> None:
         d = self._d
-        _pid = os.getpid()
-        print("Start LogReceiver, pid=%s" % _pid)
-        signal.signal(signal.SIGTERM, self.terminate)
-        signal.signal(signal.SIGINT, self.terminate)
+        self.pid = os.getpid()
+        d("Start LogReceiver, pid=%s" % self.pid)
+        # signal.signal(signal.SIGTERM, self.terminate)
+        # signal.signal(signal.SIGINT, self.terminate)
         self._check_runtime()
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         # s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -99,12 +103,14 @@ class LogReceiver(multiprocessing.Process):
                 # ))
                 # data = client.recv(4096)
                 line = data.decode()
-                print("data: %s\n" % line)
+                d("data: %s\n" % line)
+                d("find data: %s" % task_log.parser(line))
                 # if data.decode() == 'ping':
                 #     s.sendto(b'pong', self.sock_file)
                 # d("Received {0} bytes of data.".format(sys.getsizeof(data)))
+                d('结果: %s' % task_log)
             except Exception as e:
-                print(e)
+                d(e)
                 continue
             # try:
             #     (i,), data = unpack("I", data[:int_size]), data[int_size:]
@@ -113,3 +119,8 @@ class LogReceiver(multiprocessing.Process):
             
             # client.close()
 
+
+if __name__ == "__main__":
+    cfg = LogReceiverCFG()
+    
+    log_recevier = LogReceiver()

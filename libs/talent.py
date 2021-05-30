@@ -6,8 +6,7 @@ import sys
 import multiprocessing
 import time
 import datetime
-from libs import daemon
-from libs.common import ProcessStatus
+from libs.sturcts import ProcessStatus
 import signal
 import grpc
 from concurrent import futures
@@ -114,16 +113,147 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
             ret.finished_time = plot_task.finished_time.timestamp()
         # print(dir(ret.plot_details))
         # print(dir(plot_task))
-        for _k in dir(ret.plot_details):
-            if _k[0] == "_":
-                continue
-            try:
-                _v = getattr(plot_task, _k)
-                # print("%s = %s" % (_k, _v))
-                if _v:
-                    ret.plot_details.__dict__[_k] = _v
-            except AttributeError:
-                pass
+        # for _k in dir(ret.plot_details):
+        #     if _k[0] == "_":
+        #         continue
+        #     try:
+        #         _v = getattr(plot_task, _k)
+        #         # print("%s = %s" % (_k, _v))
+        #         if _v:
+        #             ret.plot_details.__dict__[_k] = _v
+        #     except AttributeError:
+        #         pass
+        ret.plot_details.fpk = plot_task.fpk
+        ret.plot_details.ppk = plot_task.ppk
+        ret.plot_details.id = plot_task.plot_id
+        ret.plot_details.ksize = plot_task.ksize
+        ret.plot_details.cache2 = plot_task.cache2
+        ret.plot_details.cache1 = plot_task.cache1
+        ret.plot_details.buffer = plot_task.buffer
+        ret.plot_details.buckets = plot_task.buckets
+        ret.plot_details.threads = plot_task.threads
+        ret.plot_details.stripe_size = plot_task.stripe_size
+        ret.plot_details.dest_file_name = plot_task.dest_file_name
+        ret.plot_details.dest_path = plot_task.dest_path
+        ret.plot_details.dest_type = plot_task.dest_type
+        ret.plot_details.stage_now = plot_task.stage_now
+        ret.plot_details.progress = plot_task.progress
+        ret.plot_details.memo = plot_task.memo
+
+        # ret.plot_details.phase_1_status = pb2.PlotP1Status()
+        ret.plot_details.phase_1_status.table_1_now_size = plot_task.p1_table_1_now_size
+        ret.plot_details.phase_1_status.time = plot_task.p1_total_time
+        ret.plot_details.phase_1_status.cpu_usage = plot_task.p1_total_cpu
+
+        # ret.plot_details.phase_1_status.t1 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t2 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t3 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t4 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t5 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t6 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_1_status.t7 = pb2.PlotPhaseStatus()
+
+        ret.plot_details.phase_1_status.t1.time = plot_task.p1_t1_time
+        ret.plot_details.phase_1_status.t1.cpu_usage = plot_task.p1_t1_cpu
+
+        ret.plot_details.phase_1_status.t2.time = plot_task.p1_t2_time
+        ret.plot_details.phase_1_status.t2.cpu_usage = plot_task.p1_t2_cpu
+
+        ret.plot_details.phase_1_status.t3.time = plot_task.p1_t3_time
+        ret.plot_details.phase_1_status.t3.cpu_usage = plot_task.p1_t3_cpu
+
+        ret.plot_details.phase_1_status.t4.time = plot_task.p1_t4_time
+        ret.plot_details.phase_1_status.t4.cpu_usage = plot_task.p1_t4_cpu
+
+        ret.plot_details.phase_1_status.t5.time = plot_task.p1_t5_time
+        ret.plot_details.phase_1_status.t5.cpu_usage = plot_task.p1_t5_cpu
+
+        ret.plot_details.phase_1_status.t6.time = plot_task.p1_t6_time
+        ret.plot_details.phase_1_status.t6.cpu_usage = plot_task.p1_t6_cpu
+
+        ret.plot_details.phase_1_status.t7.time = plot_task.p1_t7_time
+        ret.plot_details.phase_1_status.t7.cpu_usage = plot_task.p1_t7_cpu
+
+        # ret.plot_details.phase_2_status = pb2.PlotPhaseStatus()
+
+        ret.plot_details.phase_2_status.time = plot_task.p2_total_time
+        ret.plot_details.phase_2_status.cpu_usage = plot_task.p2_total_cpu
+
+        # ret.plot_details.phase_2_status.t1 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t2 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t3 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t4 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t5 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t6 = pb2.PlotP2BaseStatus()
+        # ret.plot_details.phase_2_status.t7 = pb2.PlotP2BaseStatus()
+
+        ret.plot_details.phase_2_status.t7.scan.time = plot_task.p2_t7_scan_time
+        ret.plot_details.phase_2_status.t7.scan.cpu_usage = plot_task.p2_t7_scan_cpu
+        ret.plot_details.phase_2_status.t7.sort.time = plot_task.p2_t7_sort_time
+        ret.plot_details.phase_2_status.t7.sort.cpu_usage = plot_task.p2_t7_sort_cpu
+
+        ret.plot_details.phase_2_status.t6.scan.time = plot_task.p2_t6_scan_time
+        ret.plot_details.phase_2_status.t6.scan.cpu_usage = plot_task.p2_t6_scan_cpu
+        ret.plot_details.phase_2_status.t6.sort.time = plot_task.p2_t6_sort_time
+        ret.plot_details.phase_2_status.t6.sort.cpu_usage = plot_task.p2_t6_sort_cpu
+
+        ret.plot_details.phase_2_status.t5.scan.time = plot_task.p2_t5_scan_time
+        ret.plot_details.phase_2_status.t5.scan.cpu_usage = plot_task.p2_t5_scan_cpu
+        ret.plot_details.phase_2_status.t5.sort.time = plot_task.p2_t5_sort_time
+        ret.plot_details.phase_2_status.t5.sort.cpu_usage = plot_task.p2_t5_sort_cpu
+
+        ret.plot_details.phase_2_status.t4.scan.time = plot_task.p2_t4_scan_time
+        ret.plot_details.phase_2_status.t4.scan.cpu_usage = plot_task.p2_t4_scan_cpu
+        ret.plot_details.phase_2_status.t4.sort.time = plot_task.p2_t4_sort_time
+        ret.plot_details.phase_2_status.t4.sort.cpu_usage = plot_task.p2_t4_sort_cpu
+
+        ret.plot_details.phase_2_status.t3.scan.time = plot_task.p2_t3_scan_time
+        ret.plot_details.phase_2_status.t3.scan.cpu_usage = plot_task.p2_t3_scan_cpu
+        ret.plot_details.phase_2_status.t3.sort.time = plot_task.p2_t3_sort_time
+        ret.plot_details.phase_2_status.t3.sort.cpu_usage = plot_task.p2_t3_sort_cpu
+
+        ret.plot_details.phase_2_status.t2.scan.time = plot_task.p2_t2_scan_time
+        ret.plot_details.phase_2_status.t2.scan.cpu_usage = plot_task.p2_t2_scan_cpu
+        ret.plot_details.phase_2_status.t2.sort.time = plot_task.p2_t2_sort_time
+        ret.plot_details.phase_2_status.t2.sort.cpu_usage = plot_task.p2_t2_sort_cpu
+
+        ret.plot_details.phase_2_status.t1.scan.time = plot_task.p2_t1_scan_time
+        ret.plot_details.phase_2_status.t1.scan.cpu_usage = plot_task.p2_t1_scan_cpu
+        ret.plot_details.phase_2_status.t1.sort.time = plot_task.p2_t1_sort_time
+        ret.plot_details.phase_2_status.t1.sort.cpu_usage = plot_task.p2_t1_sort_cpu
+
+        # ret.plot_details.phase_3_status = pb2.PlotP3Status()
+        ret.plot_details.phase_3_status.time = plot_task.p3_total_time
+        ret.plot_details.phase_3_status.cpu_usage = plot_task.p3_total_cpu
+
+        # ret.plot_details.phase_3_status.t1_2 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_3_status.t2_3 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_3_status.t3_4 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_3_status.t4_5 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_3_status.t5_6 = pb2.PlotPhaseStatus()
+        # ret.plot_details.phase_3_status.t6_7 = pb2.PlotPhaseStatus()
+
+        ret.plot_details.phase_3_status.t1_2.time = plot_task.p3_t1_2_time
+        ret.plot_details.phase_3_status.t1_2.cpu_usage = plot_task.p3_t1_2_cpu
+
+        ret.plot_details.phase_3_status.t2_3.time = plot_task.p3_t2_3_time
+        ret.plot_details.phase_3_status.t2_3.cpu_usage = plot_task.p3_t2_3_cpu
+
+        ret.plot_details.phase_3_status.t3_4.time = plot_task.p3_t3_4_time
+        ret.plot_details.phase_3_status.t3_4.cpu_usage = plot_task.p3_t3_4_cpu
+
+        ret.plot_details.phase_3_status.t4_5.time = plot_task.p3_t4_5_time
+        ret.plot_details.phase_3_status.t4_5.cpu_usage = plot_task.p3_t4_5_cpu
+
+        ret.plot_details.phase_3_status.t5_6.time = plot_task.p3_t5_6_time
+        ret.plot_details.phase_3_status.t5_6.cpu_usage = plot_task.p3_t5_6_cpu
+
+        ret.plot_details.phase_3_status.t6_7.time = plot_task.p3_t6_7_time
+        ret.plot_details.phase_3_status.t6_7.cpu_usage = plot_task.p3_t6_7_cpu
+        
+        # ret.plot_details.phase_4_status = pb2.PlotPhaseStatus()
+        ret.plot_details.phase_4_status.time = plot_task.p4_total_time
+        ret.plot_details.phase_4_status.cpu_usage = plot_task.p4_total_cpu
         # ret.plot_details.fpk = plot_task.fpk
         # ret.plot_details.ppk =
         # print("ret: %s" % ret)
@@ -502,7 +632,7 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         :return:
         """
         session: SqlalchemySession = db.get_db_session(self.cfg.db_file)
-        ret: pb2_ref.PlotTaskStatusAllResponse = pb2.PlotTaskStatusAllResponse()
+        rets: pb2_ref.PlotTaskStatusAllResponse = pb2.PlotTaskStatusAllResponse()
         
         if status is not None and cache1 is None:
             has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.status == status).all()
@@ -512,39 +642,171 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
             has_task = session.query(db.DBPlotTasks).filter(db.DBPlotTasks.status == status).filter(db.DBPlotTasks.cache1 == cache1).all()
         else:
             has_task = session.query(db.DBPlotTasks).all()
-        
-        _t: db.DBPlotTasks
-        for _t in has_task:
-            _ret: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
-            _ret.task_id = _t.task_id
-            _ret.worker_id = _t.worker_id
-            _ret.existed = True
-            _ret.plot_pid = _t.plot_pid
-            _ret.log_pid = _t.log_pid
-            _ret.status = _t.status
-            if type(_t.received_time) == datetime.datetime:
-                _ret.received_time = _t.received_time.timestamp()
-            if type(_t.pending_time) == datetime.datetime:
-                _ret.pending_time = _t.pending_time.timestamp()
-            if type(_t.started_time) == datetime.datetime:
-                _ret.started_time = _t.started_time.timestamp()
-            if type(_t.running_time) == datetime.datetime:
-                _ret.running_time = _t.running_time.timestamp()
-            if type(_t.finished_time) == datetime.datetime:
-                _ret.finished_time = _t.finished_time.timestamp()
-            # print(dir(ret.plot_details))
-            for _k in dir(_ret.plot_details):
-                if _k[0] == "_":
-                    continue
-                try:
-                    _v = getattr(_t, _k)
-                    # print("%s = %s" % (_k, _v))
-                    if _v:
-                        _ret.plot_details.__dict__[_k] = _v
-                except AttributeError:
-                    pass
-            ret.tasks.append(_ret)
-        return ret
+
+        plot_task: db.DBPlotTasks
+        for plot_task in has_task:
+            ret: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
+            ret.task_id = plot_task.task_id
+            ret.worker_id = plot_task.worker_id
+            ret.existed = True
+            ret.plot_pid = plot_task.plot_pid
+            ret.log_pid = plot_task.log_pid
+            ret.status = plot_task.status
+            if type(plot_task.received_time) == datetime.datetime:
+                ret.received_time = plot_task.received_time.timestamp()
+            if type(plot_task.pending_time) == datetime.datetime:
+                ret.pending_time = plot_task.pending_time.timestamp()
+            if type(plot_task.started_time) == datetime.datetime:
+                ret.started_time = plot_task.started_time.timestamp()
+            if type(plot_task.running_time) == datetime.datetime:
+                ret.running_time = plot_task.running_time.timestamp()
+            if type(plot_task.finished_time) == datetime.datetime:
+                ret.finished_time = plot_task.finished_time.timestamp()
+            # print(dir(_ret.plot_details))
+            # for _k in dir(_ret.plot_details):
+            #     if _k[0] == "_":
+            #         continue
+            #     try:
+            #         _v = getattr(_t, _k)
+            #         # print("%s = %s" % (_k, _v))
+            #         _ret.plot_details.__dict__[_k] = _v
+            #     except AttributeError:
+            #         pass
+            ret.plot_details.fpk = plot_task.fpk
+            ret.plot_details.ppk = plot_task.ppk
+            ret.plot_details.id = plot_task.plot_id
+            ret.plot_details.ksize = plot_task.ksize
+            ret.plot_details.cache2 = plot_task.cache2
+            ret.plot_details.cache1 = plot_task.cache1
+            ret.plot_details.buffer = plot_task.buffer
+            ret.plot_details.buckets = plot_task.buckets
+            ret.plot_details.threads = plot_task.threads
+            ret.plot_details.stripe_size = plot_task.stripe_size
+            ret.plot_details.dest_file_name = plot_task.dest_file_name
+            ret.plot_details.dest_path = plot_task.dest_path
+            ret.plot_details.dest_type = plot_task.dest_type
+            ret.plot_details.stage_now = plot_task.stage_now
+            ret.plot_details.progress = plot_task.progress
+            ret.plot_details.memo = plot_task.memo
+            
+            # ret.plot_details.phase_1_status = pb2.PlotP1Status()
+            ret.plot_details.phase_1_status.table_1_now_size = plot_task.p1_table_1_now_size
+            ret.plot_details.phase_1_status.time = plot_task.p1_total_time
+            ret.plot_details.phase_1_status.cpu_usage = plot_task.p1_total_cpu
+            
+            # ret.plot_details.phase_1_status.t1 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t2 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t3 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t4 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t5 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t6 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_1_status.t7 = pb2.PlotPhaseStatus()
+            
+            ret.plot_details.phase_1_status.t1.time = plot_task.p1_t1_time
+            ret.plot_details.phase_1_status.t1.cpu_usage = plot_task.p1_t1_cpu
+
+            ret.plot_details.phase_1_status.t2.time = plot_task.p1_t2_time
+            ret.plot_details.phase_1_status.t2.cpu_usage = plot_task.p1_t2_cpu
+
+            ret.plot_details.phase_1_status.t3.time = plot_task.p1_t3_time
+            ret.plot_details.phase_1_status.t3.cpu_usage = plot_task.p1_t3_cpu
+
+            ret.plot_details.phase_1_status.t4.time = plot_task.p1_t4_time
+            ret.plot_details.phase_1_status.t4.cpu_usage = plot_task.p1_t4_cpu
+
+            ret.plot_details.phase_1_status.t5.time = plot_task.p1_t5_time
+            ret.plot_details.phase_1_status.t5.cpu_usage = plot_task.p1_t5_cpu
+
+            ret.plot_details.phase_1_status.t6.time = plot_task.p1_t6_time
+            ret.plot_details.phase_1_status.t6.cpu_usage = plot_task.p1_t6_cpu
+
+            ret.plot_details.phase_1_status.t7.time = plot_task.p1_t7_time
+            ret.plot_details.phase_1_status.t7.cpu_usage = plot_task.p1_t7_cpu
+            
+            # ret.plot_details.phase_2_status = pb2.PlotPhaseStatus()
+            
+            ret.plot_details.phase_2_status.time = plot_task.p2_total_time
+            ret.plot_details.phase_2_status.cpu_usage = plot_task.p2_total_cpu
+            
+            # ret.plot_details.phase_2_status.t1 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t2 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t3 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t4 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t5 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t6 = pb2.PlotP2BaseStatus()
+            # ret.plot_details.phase_2_status.t7 = pb2.PlotP2BaseStatus()
+            
+            ret.plot_details.phase_2_status.t7.scan.time = plot_task.p2_t7_scan_time
+            ret.plot_details.phase_2_status.t7.scan.cpu_usage = plot_task.p2_t7_scan_cpu
+            ret.plot_details.phase_2_status.t7.sort.time = plot_task.p2_t7_sort_time
+            ret.plot_details.phase_2_status.t7.sort.cpu_usage = plot_task.p2_t7_sort_cpu
+
+            ret.plot_details.phase_2_status.t6.scan.time = plot_task.p2_t6_scan_time
+            ret.plot_details.phase_2_status.t6.scan.cpu_usage = plot_task.p2_t6_scan_cpu
+            ret.plot_details.phase_2_status.t6.sort.time = plot_task.p2_t6_sort_time
+            ret.plot_details.phase_2_status.t6.sort.cpu_usage = plot_task.p2_t6_sort_cpu
+
+            ret.plot_details.phase_2_status.t5.scan.time = plot_task.p2_t5_scan_time
+            ret.plot_details.phase_2_status.t5.scan.cpu_usage = plot_task.p2_t5_scan_cpu
+            ret.plot_details.phase_2_status.t5.sort.time = plot_task.p2_t5_sort_time
+            ret.plot_details.phase_2_status.t5.sort.cpu_usage = plot_task.p2_t5_sort_cpu
+
+            ret.plot_details.phase_2_status.t4.scan.time = plot_task.p2_t4_scan_time
+            ret.plot_details.phase_2_status.t4.scan.cpu_usage = plot_task.p2_t4_scan_cpu
+            ret.plot_details.phase_2_status.t4.sort.time = plot_task.p2_t4_sort_time
+            ret.plot_details.phase_2_status.t4.sort.cpu_usage = plot_task.p2_t4_sort_cpu
+
+            ret.plot_details.phase_2_status.t3.scan.time = plot_task.p2_t3_scan_time
+            ret.plot_details.phase_2_status.t3.scan.cpu_usage = plot_task.p2_t3_scan_cpu
+            ret.plot_details.phase_2_status.t3.sort.time = plot_task.p2_t3_sort_time
+            ret.plot_details.phase_2_status.t3.sort.cpu_usage = plot_task.p2_t3_sort_cpu
+
+            ret.plot_details.phase_2_status.t2.scan.time = plot_task.p2_t2_scan_time
+            ret.plot_details.phase_2_status.t2.scan.cpu_usage = plot_task.p2_t2_scan_cpu
+            ret.plot_details.phase_2_status.t2.sort.time = plot_task.p2_t2_sort_time
+            ret.plot_details.phase_2_status.t2.sort.cpu_usage = plot_task.p2_t2_sort_cpu
+
+            ret.plot_details.phase_2_status.t1.scan.time = plot_task.p2_t1_scan_time
+            ret.plot_details.phase_2_status.t1.scan.cpu_usage = plot_task.p2_t1_scan_cpu
+            ret.plot_details.phase_2_status.t1.sort.time = plot_task.p2_t1_sort_time
+            ret.plot_details.phase_2_status.t1.sort.cpu_usage = plot_task.p2_t1_sort_cpu
+
+            # ret.plot_details.phase_3_status = pb2.PlotP3Status()
+            ret.plot_details.phase_3_status.time = plot_task.p3_total_time
+            ret.plot_details.phase_3_status.cpu_usage = plot_task.p3_total_cpu
+            
+            # ret.plot_details.phase_3_status.t1_2 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_3_status.t2_3 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_3_status.t3_4 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_3_status.t4_5 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_3_status.t5_6 = pb2.PlotPhaseStatus()
+            # ret.plot_details.phase_3_status.t6_7 = pb2.PlotPhaseStatus()
+
+            ret.plot_details.phase_3_status.t1_2.time = plot_task.p3_t1_2_time
+            ret.plot_details.phase_3_status.t1_2.cpu_usage = plot_task.p3_t1_2_cpu
+
+            ret.plot_details.phase_3_status.t2_3.time = plot_task.p3_t2_3_time
+            ret.plot_details.phase_3_status.t2_3.cpu_usage = plot_task.p3_t2_3_cpu
+
+            ret.plot_details.phase_3_status.t3_4.time = plot_task.p3_t3_4_time
+            ret.plot_details.phase_3_status.t3_4.cpu_usage = plot_task.p3_t3_4_cpu
+
+            ret.plot_details.phase_3_status.t4_5.time = plot_task.p3_t4_5_time
+            ret.plot_details.phase_3_status.t4_5.cpu_usage = plot_task.p3_t4_5_cpu
+
+            ret.plot_details.phase_3_status.t5_6.time = plot_task.p3_t5_6_time
+            ret.plot_details.phase_3_status.t5_6.cpu_usage = plot_task.p3_t5_6_cpu
+
+            ret.plot_details.phase_3_status.t6_7.time = plot_task.p3_t6_7_time
+            ret.plot_details.phase_3_status.t6_7.cpu_usage = plot_task.p3_t6_7_cpu
+
+            # ret.plot_details.phase_4_status = pb2.PlotPhaseStatus()
+            ret.plot_details.phase_4_status.time = plot_task.p4_total_time
+            ret.plot_details.phase_4_status.cpu_usage = plot_task.p4_total_cpu
+            
+            print(ret.plot_details.cache1)
+            rets.tasks.append(ret)
+        return rets
         
 
 class TalentCFG(object):
@@ -597,7 +859,7 @@ class Talent(multiprocessing.Process):
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
             with open("/tmp/talent.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % (_pid, _now, msg))
+                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
     def _start_sock_logger(self):
@@ -610,6 +872,8 @@ class Talent(multiprocessing.Process):
     def terminate(self, *args, **kwargs):
         d = self._d
         d('PID:%s Talent 收到退出请求' % os.getpid())
+        d('延迟10秒关闭')
+        time.sleep(10)
         sys.stdout.flush()
         d("Talent stopping grpc server")
         self._rpc_server.stop(grace=30)

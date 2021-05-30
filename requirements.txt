@@ -3,3 +3,5 @@ grpcio
 grpcio-tools
 sqlalchemy
 protobuf3
+pyyaml
+click

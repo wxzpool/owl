@@ -5,7 +5,6 @@ import re
 # from sys import stdin, stderr, stdout, argv
 # import datetime
 from os import path
-import libs.sturcts as structs
 
 
 def escape_ansi(line):
@@ -13,28 +12,90 @@ def escape_ansi(line):
     return ansi_escape.sub('', line)
 
 
-class P1Status(structs.PlotP1Status):
-    stage = "p1"
+class PhaseStatus(object):
+    stage: str
+    time: float
+    cpu_usage: float
+    
+    def __init__(self, stage: str = None, time: float = None, cpu_usage: float = None):
+        if stage is not None:
+            self.stage = stage
+        if time is not None:
+            self.time = time
+        if cpu_usage is not None:
+            self.cpu_usage = cpu_usage
+
+
+class P2BaseStatus(object):
+    stage: str
+    scan: PhaseStatus = None
+    sort: PhaseStatus = None
+
+
+class P1Status(PhaseStatus):
     now = 0
+    stage = "p1"
+    table_1_now_size: int
+    t1: PhaseStatus = None
+    t2: PhaseStatus = None
+    t3: PhaseStatus = None
+    t4: PhaseStatus = None
+    t5: PhaseStatus = None
+    t6: PhaseStatus = None
+    t7: PhaseStatus = None
 
 
-class P2Status(structs.PlotP2Status):
+class P2Status(PhaseStatus):
     now = 0
     stage = "p2"
+    t7: P2BaseStatus = None
+    t6: P2BaseStatus = None
+    t5: P2BaseStatus = None
+    t4: P2BaseStatus = None
+    t3: P2BaseStatus = None
+    t2: P2BaseStatus = None
+    t1: P2BaseStatus = None
 
 
-class P3Status(structs.PlotP3Status):
+class P3Status(PhaseStatus):
     now = None
     stage = "p3"
+    t1_2: PhaseStatus = None
+    t2_3: PhaseStatus = None
+    t3_4: PhaseStatus = None
+    t4_5: PhaseStatus = None
+    t5_6: PhaseStatus = None
+    t6_7: PhaseStatus = None
 
 
-class P4Status(structs.PlotP4Status):
+class P4Status(PhaseStatus):
     stage = "p4"
 
 
-class LogFilter(structs.PlotDetails):
+class LogFilter(object):
+    pool_key: str = None
+    farmer_key: str = None
+    id: str = None
+    plots_size: int = None
+    cache1: str = None
+    cache2: str = None
+    buffer: int = None
+    buckets: int = None
+    threads: int = None
+    stripe_size: int = None
+    phase_1_status: P1Status = None
+    phase_2_status: P2Status = None
+    phase_3_status: P3Status = None
+    phase_4_status: P4Status = None
+    total_time: PhaseStatus = None
+    copy_time: PhaseStatus = None
+    file_name: str = None
+    file_full_path: str = None
+    wrote: int = 0
     is_started: bool = False
     is_finished: bool = False
+    stage_now: int = 0
+    progress: float = 0.0
     
     def parser(self, s: str) -> bool:
         # print(s)
@@ -83,7 +144,7 @@ class LogFilter(structs.PlotDetails):
                 _p1_now = self.phase_1_status.now
                 _target = "t%s" % _p1_now
                 if self.phase_1_status.__getattribute__(_target) is None:
-                    self.phase_1_status.__setattr__(_target, structs.PlotPhaseStatus())
+                    self.phase_1_status.__setattr__(_target, PhaseStatus())
                 self.phase_1_status.__dict__[_target].stage = _target
                 self.phase_1_status.__dict__[_target].time = _time
                 self.phase_1_status.__dict__[_target].cpu_usage = _cpu
@@ -105,10 +166,10 @@ class LogFilter(structs.PlotDetails):
                 _p2_now = self.phase_2_status.now
                 _target = "t%s" % _p2_now
                 if self.phase_2_status.__getattribute__(_target) is None:
-                    self.phase_2_status.__setattr__(_target, structs.PlotP2BaseStatus())
+                    self.phase_2_status.__setattr__(_target, P2BaseStatus())
                 # print("[debug] %s" % self.phase_2_status.__getattribute__(_target))
                 if self.phase_2_status.__dict__[_target].scan is None:
-                    self.phase_2_status.__dict__[_target].scan = structs.PlotPhaseStatus()
+                    self.phase_2_status.__dict__[_target].scan = PhaseStatus()
                 self.phase_2_status.__dict__[_target].scan.stage = _target
                 self.phase_2_status.__dict__[_target].scan.time = _time
                 self.phase_2_status.__dict__[_target].scan.cpu_usage = _cpu
@@ -118,10 +179,10 @@ class LogFilter(structs.PlotDetails):
                 _p2_now = self.phase_2_status.now
                 _target = "t%s" % _p2_now
                 if self.phase_2_status.__getattribute__(_target) is None:
-                    self.phase_2_status.__setattr__(_target, structs.PlotP2BaseStatus())
+                    self.phase_2_status.__setattr__(_target, P2BaseStatus())
                 # print("[debug] %s" % self.phase_2_status.__getattribute__(_target))
                 if self.phase_2_status.__dict__[_target].sort is None:
-                    self.phase_2_status.__dict__[_target].sort = structs.PlotPhaseStatus()
+                    self.phase_2_status.__dict__[_target].sort = PhaseStatus()
                 self.phase_2_status.__dict__[_target].sort.stage = _target
                 self.phase_2_status.__dict__[_target].sort.time = _time
                 self.phase_2_status.__dict__[_target].sort.cpu_usage = _cpu
@@ -143,7 +204,7 @@ class LogFilter(structs.PlotDetails):
             if _time != 0.0 and _cpu != 0.0:
                 _target = "t%s" % self.phase_3_status.now
                 if self.phase_3_status.__getattribute__(_target) is None:
-                    self.phase_3_status.__setattr__(_target, structs.PlotPhaseStatus())
+                    self.phase_3_status.__setattr__(_target, PhaseStatus())
                 self.phase_3_status.__dict__[_target].stage = _target
                 self.phase_3_status.__dict__[_target].time = _time
                 self.phase_3_status.__dict__[_target].cpu_usage = _cpu
@@ -407,7 +468,7 @@ class LogFilter(structs.PlotDetails):
             r'^Total\s+time\s+=\s+(?P<time>\d+\.\d+)\s+seconds\.\s+CPU\s+\((?P<cpu>\d+\.\d+)%\)\s+.*')
         t = reg.search(s)
         if t is not None and 'time' in t.groupdict() and 'cpu' in t.groupdict():
-            self.total_time = structs.PlotPhaseStatus()
+            self.total_time = PhaseStatus()
             self.total_time.stage = "total"
             self.total_time.time = float(t.groupdict()['time'])
             self.total_time.cpu_usage = float(t.groupdict()['cpu'])
@@ -420,7 +481,7 @@ class LogFilter(structs.PlotDetails):
             r'^Copy\s+time\s+=\s+(?P<time>\d+\.\d+)\s+seconds\.\s+CPU\s+\((?P<cpu>\d+\.\d+)%\)\s+.*')
         t = reg.search(s)
         if t is not None and 'time' in t.groupdict() and 'cpu' in t.groupdict():
-            self.total_time = structs.PlotPhaseStatus()
+            self.total_time = PhaseStatus()
             self.total_time.stage = "copy"
             self.total_time.time = float(t.groupdict()['time'])
             self.total_time.cpu_usage = float(t.groupdict()['cpu'])

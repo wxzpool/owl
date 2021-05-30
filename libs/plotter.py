@@ -3,10 +3,10 @@
 
 import os
 import sys
-import multiprocessing
+# import multiprocessing
+import threading
 import time
-from libs import daemon
-from libs.common import ProcessStatus
+from libs.sturcts import ProcessStatus, PlotterCFG
 import signal
 import subprocess
 import shlex
@@ -17,21 +17,8 @@ import time
 MpManagerDict = dict
 
 
-class PlotterCFG(object):
-    task_id: str
-    bin: str = "/tmp/chia"
-    name: str
-    fpk: str
-    ppk: str
-    thread: int
-    mem: int
-    cache1: str
-    cache2: str
-    dest: str
-    ksize: int
-    
-
-class Plotter(multiprocessing.Process):
+# class Plotter(multiprocessing.Process):
+class Plotter(threading.Thread):
     """
     Talent 是负责与
     """
@@ -39,6 +26,7 @@ class Plotter(multiprocessing.Process):
     _app_cfg: PlotterCFG
     _app_status: ProcessStatus
     _plotter = None
+    pid: int
     # prometheus_host = "127.0.0.1"
     
     def __init__(self, cfg: PlotterCFG, sock_file: str, manager: MpManagerDict = None, debug: bool = False, *args, **kwargs):
@@ -93,12 +81,12 @@ class Plotter(multiprocessing.Process):
     
     def run(self):
         d = self._d
+        self.pid = os.getpid()
         d("sleep 1 for supervisor write back status")
         time.sleep(1)
-        signal.signal(signal.SIGTERM, self.terminate)
-        signal.signal(signal.SIGINT, self.terminate)
-        _pid = os.getpid()
-        d("Start Plotter, pid=%s" % _pid)
+        # signal.signal(signal.SIGTERM, self.terminate)
+        # signal.signal(signal.SIGINT, self.terminate)
+        d("Start Plotter, pid=%s" % self.pid)
         self._app_check()
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         s.connect(self.sock_file)
