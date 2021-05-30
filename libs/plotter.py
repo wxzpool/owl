@@ -67,9 +67,13 @@ class Plotter(multiprocessing.Process):
         pass
     
     def _d(self, msg):
+        _name = "Plotter-%s" % self.cfg.task_id
+        _pid = os.getpid()
+        _now = time.time()
+        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
             with open("/tmp/plotter.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
+                log.write('[PID: %d] [%.3f] %s' % (_pid, _now, msg))
                 log.flush()
     
     def _start_sock_logger(self):
@@ -80,9 +84,11 @@ class Plotter(multiprocessing.Process):
             raise RuntimeError('cfg not defined')
     
     def terminate(self, *args, **kwargs):
-        print('PID:%s Plotter 收到退出请求' % os.getpid())
+        d = self._d
+        d('PID:%s Plotter 收到退出请求' % os.getpid())
         sys.stdout.flush()
         os.kill(self._plotter.pid, 9)
+        d("Plotter stopped")
         raise SystemExit(0)
     
     def run(self):
@@ -92,7 +98,7 @@ class Plotter(multiprocessing.Process):
         signal.signal(signal.SIGTERM, self.terminate)
         signal.signal(signal.SIGINT, self.terminate)
         _pid = os.getpid()
-        print("Start Plotter, pid=%s" % _pid)
+        d("Start Plotter, pid=%s" % _pid)
         self._app_check()
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         s.connect(self.sock_file)

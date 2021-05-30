@@ -35,13 +35,17 @@ class LogReceiver(multiprocessing.Process):
         super().__init__(*args, **kwargs)
 
     def _d(self, msg):
+        _name = "LogReceiver-%s" % self.name
+        _pid = os.getpid()
+        _now = time.time()
+        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
             with open("/tmp/log_receiver.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
+                log.write('[PID: %d] [%.3f] %s' % ( _pid, _now, msg))
                 log.flush()
     
     def terminate(self, *args, **kwargs):
-        print('PID:%s LogReceiver收到退出请求' % os.getpid())
+        self._d('PID:%s LogReceiver收到退出请求' % os.getpid())
         sys.stdout.flush()
         if self._log_sock is not None:
             self._log_sock.close()
@@ -49,6 +53,7 @@ class LogReceiver(multiprocessing.Process):
             os.remove(self.sock_file)
         except OSError:
             pass
+        self._d("LogReceiver stopped")
         raise SystemExit(0)
     
     def _check_runtime(self):

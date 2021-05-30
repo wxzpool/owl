@@ -27,22 +27,6 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
     def __init__(self, cfg):
         self.cfg: TalentCFG = cfg
     
-    def get_store_dest(self, request, context):
-        """
-        这是一个临时函数
-        
-        此函数为重要的分配函数，主要用于获得下一个存储的目录。
-        
-        当overlord上线后此函数将丢弃
-        
-        :param request:
-        :param context:
-        :return:
-        """
-        ret: pb2_ref.PlotStoreDestResponse = pb2.PlotStoreDestResponse()
-        ret.dest = ""
-        return ret
-        
     def plot_task_create(self, request, context):
         # print(request)
         ret: pb2_ref.PlotTaskStatusResponse = pb2.PlotTaskStatusResponse(type="on_create", is_success=False)
@@ -607,9 +591,14 @@ class Talent(multiprocessing.Process):
         pass
     
     def _d(self, msg):
+        _name = "Talent"
+        _pid = os.getpid()
+        _now = time.time()
+        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            print('[PID: %d] [%.3f] %s' % (os.getpid(), time.time(), msg))
-            sys.stdout.flush()
+            with open("/tmp/talent.log", "a") as log:
+                log.write('[PID: %d] [%.3f] %s' % (_pid, _now, msg))
+                log.flush()
     
     def _start_sock_logger(self):
         pass
@@ -619,10 +608,12 @@ class Talent(multiprocessing.Process):
             raise RuntimeError('cfg not defined')
     
     def terminate(self, *args, **kwargs):
-        print('PID:%s Talent 收到退出请求' % os.getpid())
+        d = self._d
+        d('PID:%s Talent 收到退出请求' % os.getpid())
         sys.stdout.flush()
-        print("Talent stopping grpc server")
+        d("Talent stopping grpc server")
         self._rpc_server.stop(grace=30)
+        d("Talent stopped")
         raise SystemExit(0)
     
     def run(self):

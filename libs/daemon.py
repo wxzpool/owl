@@ -8,13 +8,14 @@ import psutil
 import signal
 
 
-def daemonize(pid_file):
-    if os.path.exists(pid_file):
-        with open(pid_file, 'r') as f:
-            if psutil.pid_exists(int(f.read())):
-                raise RuntimeError('Already running')
-            else:
-                os.remove(pid_file)
+def daemonize(pid_file=None):
+    if pid_file is not None:
+        if os.path.exists(pid_file):
+            with open(pid_file, 'r') as f:
+                if psutil.pid_exists(int(f.read())):
+                    raise RuntimeError('Already running')
+                else:
+                    os.remove(pid_file)
 
     # First fork (detaches from parent)
     try:
@@ -37,12 +38,13 @@ def daemonize(pid_file):
     sys.stdout.flush()
     sys.stderr.flush()
 
-    # Write the PID file
-    with open(pid_file, 'w') as f:
-        print(os.getpid(), file=f)
+    if pid_file is not None:
+        # Write the PID file
+        with open(pid_file, 'w') as f:
+            print(os.getpid(), file=f)
 
-    # Arrange to have the PID file removed on exit/signal
-    atexit.register(lambda: os.remove(pid_file))
+        # Arrange to have the PID file removed on exit/signal
+        atexit.register(lambda: os.remove(pid_file))
 
     # Signal handler for termination (required)
     def sigterm_handler(signo, frame):
