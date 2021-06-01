@@ -2,7 +2,7 @@
 # encoding: utf-8
 import os
 import sys
-import multiprocessing
+# import multiprocessing
 import time
 from libs.sturcts import ProcessStatus, CacheCFG, PlotProcessCFG, SupervisorCFG
 from libs.log_receiver import LogReceiverCFG, LogReceiver
@@ -19,6 +19,7 @@ import libs.grpc.talent as pb2_ref
 import libs.grpc.talent_pb2 as pb2
 import libs.grpc.talent_pb2_grpc as pb2_grpc
 from .common import get_ksize_capacity
+import psutil
 
 MpManagerDict = dict
 
@@ -29,7 +30,8 @@ class ProcessList(object):
     logger: LogReceiver
 
 
-class Supervisor(multiprocessing.Process):
+# class Supervisor(multiprocessing.Process):
+class Supervisor(object):
     _app_cfg: SupervisorCFG
     _manager: MpManagerDict = None
     _app_status: ProcessStatus
@@ -41,10 +43,12 @@ class Supervisor(multiprocessing.Process):
         # self._sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
         if manager is not None:
             self._manager = manager
+        if 'pid' in kwargs:
+            self.pid = kwargs['pid']
         # print("Start Success")
         # daemon.output_to_log(stdout='/tmp/glue_stdout.log', stderr='/tmp/glue_stderr.log')
         
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
     
     @property
     def debug(self) -> bool:
@@ -68,14 +72,17 @@ class Supervisor(multiprocessing.Process):
         _now = time.time()
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("/tmp/supervisor.log", "a") as log:
+            with open(self.cfg.log_file, "a") as log:
                 log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
-    def _start_sock_logger(self, name, sock_path) -> LogReceiver:
+    def _start_sock_logger(self, task_id, sock_path, log_store) -> LogReceiver:
         logger_cfg = LogReceiverCFG()
-        logger_cfg.name = name
+        logger_cfg.name = task_id
+        logger_cfg.task_id = task_id
         logger_cfg.sock_path = sock_path
+        logger_cfg.log_store = log_store
+        logger_cfg.grpc_host = self.cfg.grpc_host
         logger = LogReceiver(logger_cfg, debug=self.debug)
         logger.daemon = True
         logger.start()
@@ -96,12 +103,21 @@ class Supervisor(multiprocessing.Process):
         d = self._d
         ret: [PlotterCFG] = list()
         # 返回的是一个PlotProcessCFG元素的数组
-        with grpc.insecure_channel(self.cfg.grpc_host) as channel:
-            # d("获取所有状态为{}的记录".format(status))
-            stub = pb2_grpc.PlotManagerStub(channel)
-            resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(pb2.PlotStatus(status=status))
+        _get_err = True
+        while _get_err:
+            try:
+                with grpc.insecure_channel(self.cfg.grpc_host) as channel:
+                    # d("获取所有状态为{}的记录".format(status))
+                    stub = pb2_grpc.PlotManagerStub(channel)
+                    resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(pb2.PlotStatus(status=status))
+                    _get_err = False
+            except grpc.RpcError as e:
+                d("RPC Error, try again after 10 sec")
+                d(e)
+                time.sleep(10)
         for task in resp.tasks:
             plot_cfg = PlotterCFG()
+            plot_cfg.log_store = self.cfg.plot_process_config.log_store
             plot_cfg.name = task.task_id
             plot_cfg.task_id = task.task_id
             plot_cfg.fpk = task.plot_details.fpk
@@ -119,9 +135,18 @@ class Supervisor(multiprocessing.Process):
         return ret
     
     def _update_task(self, task_status: pb2_ref.PlotTaskStatus) -> pb2_ref.PlotTaskUpdateResponse:
-        with grpc.insecure_channel(self.cfg.grpc_host) as channel:
-            stub = pb2_grpc.PlotManagerStub(channel)
-            resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(task_status)
+        _get_err = True
+        d = self._d
+        while _get_err:
+            try:
+                with grpc.insecure_channel(self.cfg.grpc_host) as channel:
+                    stub = pb2_grpc.PlotManagerStub(channel)
+                    resp: pb2_ref.PlotTaskUpdateResponse = stub.plot_task_update(task_status)
+                    _get_err = False
+            except grpc.RpcError as e:
+                d("RPC Error, try again after 10 sec")
+                d(e)
+                time.sleep(10)
         return resp
 
     def terminate(self, *args, **kwargs):
@@ -139,9 +164,14 @@ class Supervisor(multiprocessing.Process):
             task_status.task_id = pl.task_id
             task_status.status = "stopped"
             self._update_task(task_status)
-            pl.plotter.terminate()
-            # os.kill(pl.plotter.pid, signal.SIGKILL)
-            os.kill(pl.logger.pid, signal.SIGTERM)
+            # pl.plotter.terminate()
+            try:
+                os.kill(pl.plotter.pid, signal.SIGKILL)
+                os.kill(pl.logger.pid, signal.SIGTERM)
+                pl.plotter.join()
+                pl.logger.join()
+            except ProcessLookupError:
+                pass
         d("Supervisor stopped")
         raise SystemExit(0)
     
@@ -155,9 +185,16 @@ class Supervisor(multiprocessing.Process):
         while True:
             # 检查现有任务状态
             d("当前任务数量: %s" % len(self._process_list))
-            for pl in self._process_list:
+            for _i, pl in enumerate(self._process_list):
                 # todo 监控进程是否退出
-                d(pl.plotter.pid)
+                # d("I: %s" % _i)
+                # d("plot task: %s = %s" % (pl.plotter.pid, pl.plotter.is_alive()))
+                # d("log task: %s = %s" % (pl.logger.pid, pl.logger.is_alive()))
+                # d("\n")
+                if not pl.plotter.is_alive():
+                    d("plotter no existed, remove logger, remove work list")
+                    os.kill(pl.logger.pid, signal.SIGTERM)
+                    del self._process_list[_i]
             # 定时获取任务， grpc调用talent
             # 应该先执行所有pending的任务
             for _status in ["pending", "received"]:
@@ -165,13 +202,13 @@ class Supervisor(multiprocessing.Process):
                 d("%s状态数量: %s" % (_status, len(_all_tasks)))
                 for t in _all_tasks:
                     d("Task: %s" % t.task_id)
-                    d(t.bin)
-                    d(t.cache1)
+                    # d(t.bin)
+                    # d(t.cache1)
                     # todo 机器应该有最大上限(按照ssd划分)
                     # todo cache2 暂时不支持
                     # print(t.cache1)
                     ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
-                    d("ssd 容量: %s" % ssd_capacity)
+                    # d("ssd 容量: %s" % ssd_capacity)
                     # 无法获取ssd容量会引起错误，回写状态
                     if ssd_capacity == 0:
                         d("无法获取ssd(%s)容量" % t.cache1)
@@ -179,44 +216,47 @@ class Supervisor(multiprocessing.Process):
                         task_status.task_id = t.task_id
                         task_status.status = "failed"
                         task_status.remarks = "无法获取ssd(%s)容量" % t.cache1
-                        d(task_status.remarks)
+                        # d(task_status.remarks)
                         res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
-                        d("callback, is_success:{}, msg: {}".format(
-                            res.is_success,
-                            res.msg
-                        ))
+                        # d("callback, is_success:{}, msg: {}".format(
+                        #     res.is_success,
+                        #     res.msg
+                        # ))
                         continue
                         
                     with grpc.insecure_channel(self.cfg.grpc_host) as channel:
-                        d("首先获取当前所有状态为{}，cache1为{}上的进程".format(
-                            "running",
-                            t.cache1
-                        ))
+                        # d("首先获取当前所有状态为{}，cache1为{}上的进程".format(
+                        #     "running",
+                        #     t.cache1
+                        # ))
                         stub = pb2_grpc.PlotManagerStub(channel)
                         request: pb2_ref.GetPlotByCacheRequest = pb2.GetPlotByCacheRequest()
                         request.status = "running"
                         request.cache1 = t.cache1
                         resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(request)
                     # 返回获取运行数量
-                    running_number = len(resp.tasks)
+                    running_number = len(self._process_list)
                     ksize_capacity = get_ksize_capacity(t.ksize)
                     # print(ksize_capacity)
                     max_proc = round(ssd_capacity / ksize_capacity)
+                    # d("SSD MAX: %s" % max_proc)
                     if running_number >= max_proc:
+                        d("达到ssd最大进程数，任务pending")
                         task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
-                        request.task_id = t.task_id
+                        task_status.task_id = t.task_id
+                        task_status.status = "pending"
                         task_status.remarks = "达到ssd最大进程数，任务pending"
                         res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
-                        d("callback, is_success:{}, msg: {}".format(
-                            res.is_success,
-                            res.msg
-                        ))
+                        # d("callback, is_success:{}, msg: {}".format(
+                        #     res.is_success,
+                        #     res.msg
+                        # ))
                         continue
                     
                     process = ProcessList()
                     process.task_id = t.task_id
                     # print("start logger")
-                    process.logger = self._start_sock_logger(t.name, self.cfg.sock_path)
+                    process.logger = self._start_sock_logger(t.task_id, self.cfg.sock_path, self.cfg.plot_process_config.log_store)
                     d(process.logger)
                     # time.sleep(3)
                     # test sock server up
@@ -234,6 +274,7 @@ class Supervisor(multiprocessing.Process):
                     self._process_list.append(process)
                     task_status.plot_pid = process.plotter.pid
                     task_status.status = "started"
+                    task_status.remarks = "任务开始"
                     self._update_task(task_status)
                 # 然后获取最新状态为received的任务，并执行
                 # todo not test

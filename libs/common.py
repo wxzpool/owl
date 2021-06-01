@@ -19,7 +19,7 @@ def get_ksize_capacity(ksize: int) -> int:
     return 0
 
 
-def daemonize(pid_file=None):
+def daemonize(pid_file=None, daemon=True):
     if pid_file is not None:
         if os.path.exists(pid_file):
             with open(pid_file, 'r') as f:
@@ -27,27 +27,27 @@ def daemonize(pid_file=None):
                     raise RuntimeError('Already running')
                 else:
                     os.remove(pid_file)
-    
-    # First fork (detaches from parent)
-    try:
-        if os.fork() > 0:
-            raise SystemExit(0)  # Parent exit
-    except OSError as e:
-        raise RuntimeError('fork #1 failed.')
-    
-    os.chdir('/')
-    os.umask(0)
-    os.setsid()
-    # Second fork (relinquish session leadership)
-    try:
-        if os.fork() > 0:
-            raise SystemExit(0)
-    except OSError as e:
-        raise RuntimeError('fork #2 failed.')
-    
-    # Flush I/O buffers
-    sys.stdout.flush()
-    sys.stderr.flush()
+    if daemon:
+        # First fork (detaches from parent)
+        try:
+            if os.fork() > 0:
+                raise SystemExit(0)  # Parent exit
+        except OSError as e:
+            raise RuntimeError('fork #1 failed.')
+        
+        os.chdir('/')
+        os.umask(0)
+        os.setsid()
+        # Second fork (relinquish session leadership)
+        try:
+            if os.fork() > 0:
+                raise SystemExit(0)
+        except OSError as e:
+            raise RuntimeError('fork #2 failed.')
+        
+        # Flush I/O buffers
+        sys.stdout.flush()
+        sys.stderr.flush()
     
     if pid_file is not None:
         # Write the PID file
@@ -58,11 +58,11 @@ def daemonize(pid_file=None):
         atexit.register(lambda: os.remove(pid_file))
     
     # Signal handler for termination (required)
-    def sigterm_handler(signo, frame):
-        raise SystemExit(1)
+    # def sigterm_handler(signo, frame):
+    #     raise SystemExit(1)
     
-    signal.signal(signal.SIGTERM, sigterm_handler)
-    signal.signal(signal.SIGINT, sigterm_handler)
+    # signal.signal(signal.SIGTERM, sigterm_handler)
+    # signal.signal(signal.SIGINT, sigterm_handler)
 
 
 def output_to_log(*, stdin='/dev/null',

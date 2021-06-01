@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0ctalent.proto\x12\x06talent\"A\n\x0fPlotPhaseStatus\x12\r\n\x05stage\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x02\x12\x11\n\tcpu_usage\x18\x03 \x01(\x02\"o\n\x10PlotP2BaseStatus\x12\r\n\x05stage\x18\x01 \x01(\t\x12%\n\x04scan\x18\x02 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04sort\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\"\xe8\x02\n\x0cPlotP1Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12\x18\n\x10table_1_now_size\x18\x02 \x01(\x05\x12#\n\x02t1\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t2\x18\x04 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t3\x18\x05 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t4\x18\x06 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t5\x18\x07 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t6\x18\x08 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t7\x18\t \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x0b\n\x03now\x18\n \x01(\x05\x12\x0c\n\x04time\x18\x0b \x01(\x02\x12\x11\n\tcpu_usage\x18\x0c \x01(\x02\"\xd5\x02\n\x0cPlotP2Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12$\n\x02t7\x18\x02 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t6\x18\x03 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t5\x18\x04 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t4\x18\x05 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t3\x18\x06 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t2\x18\x07 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t1\x18\x08 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12\x0b\n\x03now\x18\t \x01(\x05\x12\x0c\n\x04time\x18\n \x01(\x02\x12\x11\n\tcpu_usage\x18\x0b \x01(\x02\"\xb5\x02\n\x0cPlotP3Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12%\n\x04t1_2\x18\x02 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t2_3\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t3_4\x18\x04 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t4_5\x18\x05 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t5_6\x18\x06 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t6_7\x18\x07 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x0b\n\x03now\x18\x08 \x01(\t\x12\x0c\n\x04time\x18\t \x01(\x02\x12\x11\n\tcpu_usage\x18\n \x01(\x02\"\xbd\x04\n\x0bPlotDetails\x12\x0b\n\x03\x66pk\x18\x01 \x01(\t\x12\x0b\n\x03ppk\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\t\x12\r\n\x05ksize\x18\x04 \x01(\x05\x12\x0e\n\x06\x63\x61\x63he1\x18\x05 \x01(\t\x12\x0e\n\x06\x63\x61\x63he2\x18\x06 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x07 \x01(\x05\x12\x0f\n\x07\x62uckets\x18\x08 \x01(\x05\x12\x0f\n\x07threads\x18\t \x01(\x05\x12\x13\n\x0bstripe_size\x18\n \x01(\x05\x12,\n\x0ephase_1_status\x18\x0b \x01(\x0b\x32\x14.talent.PlotP1Status\x12,\n\x0ephase_2_status\x18\x0c \x01(\x0b\x32\x14.talent.PlotP2Status\x12,\n\x0ephase_3_status\x18\r \x01(\x0b\x32\x14.talent.PlotP3Status\x12/\n\x0ephase_4_status\x18\x0e \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12+\n\ntotal_time\x18\x0f \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12*\n\tcopy_time\x18\x10 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x16\n\x0e\x64\x65st_file_name\x18\x11 \x01(\t\x12\x11\n\tdest_path\x18\x12 \x01(\t\x12\x11\n\tdest_type\x18\x13 \x01(\t\x12\r\n\x05wrote\x18\x14 \x01(\x05\x12\x11\n\tstage_now\x18\x15 \x01(\x05\x12\x10\n\x08progress\x18\x16 \x01(\x02\x12\x0c\n\x04memo\x18\x17 \x01(\t\"\xc1\x01\n\nPlotConfig\x12\x0b\n\x03\x66pk\x18\x01 \x01(\t\x12\x0b\n\x03ppk\x18\x02 \x01(\t\x12\r\n\x05ksize\x18\x03 \x01(\x05\x12\x0f\n\x07threads\x18\x04 \x01(\x05\x12\x0e\n\x06\x62uffer\x18\x05 \x01(\x05\x12\x0e\n\x06\x63\x61\x63he1\x18\x06 \x01(\t\x12\x0e\n\x06\x63\x61\x63he2\x18\x07 \x01(\t\x12%\n\x04\x64\x65st\x18\x08 \x01(\x0b\x32\x17.talent.PlotConfig.Dest\x1a\"\n\x04\x44\x65st\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0c\n\x04path\x18\x02 \x01(\t\"d\n\x15PlotTaskCreateRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x11\n\tworker_id\x18\x02 \x01(\t\x12\'\n\x0bplot_config\x18\x03 \x01(\x0b\x32\x12.talent.PlotConfig\"\xa4\x02\n\x0ePlotTaskStatus\x12\x11\n\tworker_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x0f\n\x07\x65xisted\x18\x03 \x01(\x08\x12\x10\n\x08plot_pid\x18\x04 \x01(\x05\x12\x0f\n\x07log_pid\x18\x05 \x01(\x05\x12\x0e\n\x06status\x18\x06 \x01(\t\x12\x15\n\rreceived_time\x18\x07 \x01(\x01\x12\x14\n\x0cpending_time\x18\x08 \x01(\x01\x12\x14\n\x0cstarted_time\x18\t \x01(\x01\x12\x14\n\x0crunning_time\x18\n \x01(\x01\x12\x15\n\rfinished_time\x18\x0b \x01(\x01\x12\x0f\n\x07remarks\x18\x0c \x01(\t\x12)\n\x0cplot_details\x18\r \x01(\x0b\x32\x13.talent.PlotDetails\"B\n\x19PlotTaskStatusAllResponse\x12%\n\x05tasks\x18\x01 \x03(\x0b\x32\x16.talent.PlotTaskStatus\"$\n\x11PlotTaskIdRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\"6\n\x13PlotTaskStopRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x0e\n\x06reason\x18\x02 \x01(\t\"<\n\x13GetPlotTaskResponse\x12%\n\ttask_list\x18\x01 \x03(\x0b\x32\x12.talent.PlotConfig\"G\n\x16PlotTaskStatusResponse\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x12\n\nis_success\x18\x02 \x01(\x08\x12\x0b\n\x03msg\x18\x03 \x01(\t\"9\n\x16PlotTaskUpdateResponse\x12\x12\n\nis_success\x18\x01 \x01(\x08\x12\x0b\n\x03msg\x18\x02 \x01(\t\"\x07\n\x05\x45mpty\"7\n\x15GetPlotByCacheRequest\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0e\n\x06\x63\x61\x63he1\x18\x02 \x01(\t\"\x1c\n\nPlotStatus\x12\x0e\n\x06status\x18\x01 \x01(\t2\xac\x04\n\x0bPlotManager\x12Q\n\x10plot_task_create\x12\x1d.talent.PlotTaskCreateRequest\x1a\x1e.talent.PlotTaskStatusResponse\x12\x45\n\x10plot_task_status\x12\x19.talent.PlotTaskIdRequest\x1a\x16.talent.PlotTaskStatus\x12H\n\x14plot_task_status_all\x12\r.talent.Empty\x1a!.talent.PlotTaskStatusAllResponse\x12M\n\x0eplot_task_stop\x12\x1b.talent.PlotTaskStopRequest\x1a\x1e.talent.PlotTaskStatusResponse\x12J\n\x10plot_task_update\x12\x16.talent.PlotTaskStatus\x1a\x1e.talent.PlotTaskUpdateResponse\x12G\n\x0eget_plot_tasks\x12\x12.talent.PlotStatus\x1a!.talent.PlotTaskStatusAllResponse\x12U\n\x11get_plot_by_cache\x12\x1d.talent.GetPlotByCacheRequest\x1a!.talent.PlotTaskStatusAllResponseb\x06proto3'
+  serialized_pb=b'\n\x0ctalent.proto\x12\x06talent\"A\n\x0fPlotPhaseStatus\x12\r\n\x05stage\x18\x01 \x01(\t\x12\x0c\n\x04time\x18\x02 \x01(\x02\x12\x11\n\tcpu_usage\x18\x03 \x01(\x02\"o\n\x10PlotP2BaseStatus\x12\r\n\x05stage\x18\x01 \x01(\t\x12%\n\x04scan\x18\x02 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04sort\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\"\xe8\x02\n\x0cPlotP1Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12\x18\n\x10table_1_now_size\x18\x02 \x01(\x05\x12#\n\x02t1\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t2\x18\x04 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t3\x18\x05 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t4\x18\x06 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t5\x18\x07 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t6\x18\x08 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12#\n\x02t7\x18\t \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x0b\n\x03now\x18\n \x01(\x05\x12\x0c\n\x04time\x18\x0b \x01(\x02\x12\x11\n\tcpu_usage\x18\x0c \x01(\x02\"\xd5\x02\n\x0cPlotP2Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12$\n\x02t7\x18\x02 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t6\x18\x03 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t5\x18\x04 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t4\x18\x05 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t3\x18\x06 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t2\x18\x07 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12$\n\x02t1\x18\x08 \x01(\x0b\x32\x18.talent.PlotP2BaseStatus\x12\x0b\n\x03now\x18\t \x01(\x05\x12\x0c\n\x04time\x18\n \x01(\x02\x12\x11\n\tcpu_usage\x18\x0b \x01(\x02\"\xb5\x02\n\x0cPlotP3Status\x12\r\n\x05stage\x18\x01 \x01(\t\x12%\n\x04t1_2\x18\x02 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t2_3\x18\x03 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t3_4\x18\x04 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t4_5\x18\x05 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t5_6\x18\x06 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12%\n\x04t6_7\x18\x07 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x0b\n\x03now\x18\x08 \x01(\t\x12\x0c\n\x04time\x18\t \x01(\x02\x12\x11\n\tcpu_usage\x18\n \x01(\x02\"\xe6\x04\n\x0bPlotDetails\x12\x0b\n\x03\x66pk\x18\x01 \x01(\t\x12\x0b\n\x03ppk\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\t\x12\r\n\x05ksize\x18\x04 \x01(\x05\x12\x0e\n\x06\x63\x61\x63he1\x18\x05 \x01(\t\x12\x0e\n\x06\x63\x61\x63he2\x18\x06 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x07 \x01(\x05\x12\x0f\n\x07\x62uckets\x18\x08 \x01(\x05\x12\x0f\n\x07threads\x18\t \x01(\x05\x12\x13\n\x0bstripe_size\x18\n \x01(\x05\x12,\n\x0ephase_1_status\x18\x0b \x01(\x0b\x32\x14.talent.PlotP1Status\x12,\n\x0ephase_2_status\x18\x0c \x01(\x0b\x32\x14.talent.PlotP2Status\x12,\n\x0ephase_3_status\x18\r \x01(\x0b\x32\x14.talent.PlotP3Status\x12/\n\x0ephase_4_status\x18\x0e \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12+\n\ntotal_time\x18\x0f \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12*\n\tcopy_time\x18\x10 \x01(\x0b\x32\x17.talent.PlotPhaseStatus\x12\x16\n\x0e\x64\x65st_file_name\x18\x11 \x01(\t\x12\x11\n\tdest_path\x18\x12 \x01(\t\x12\x11\n\tdest_type\x18\x13 \x01(\t\x12\r\n\x05wrote\x18\x14 \x01(\x05\x12\x11\n\tstage_now\x18\x15 \x01(\x05\x12\x10\n\x08progress\x18\x16 \x01(\x02\x12\x0c\n\x04memo\x18\x17 \x01(\t\x12\x12\n\nis_started\x18\x18 \x01(\x08\x12\x13\n\x0bis_finished\x18\x19 \x01(\x08\"\xc1\x01\n\nPlotConfig\x12\x0b\n\x03\x66pk\x18\x01 \x01(\t\x12\x0b\n\x03ppk\x18\x02 \x01(\t\x12\r\n\x05ksize\x18\x03 \x01(\x05\x12\x0f\n\x07threads\x18\x04 \x01(\x05\x12\x0e\n\x06\x62uffer\x18\x05 \x01(\x05\x12\x0e\n\x06\x63\x61\x63he1\x18\x06 \x01(\t\x12\x0e\n\x06\x63\x61\x63he2\x18\x07 \x01(\t\x12%\n\x04\x64\x65st\x18\x08 \x01(\x0b\x32\x17.talent.PlotConfig.Dest\x1a\"\n\x04\x44\x65st\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0c\n\x04path\x18\x02 \x01(\t\"d\n\x15PlotTaskCreateRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x11\n\tworker_id\x18\x02 \x01(\t\x12\'\n\x0bplot_config\x18\x03 \x01(\x0b\x32\x12.talent.PlotConfig\"\xa4\x02\n\x0ePlotTaskStatus\x12\x11\n\tworker_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x0f\n\x07\x65xisted\x18\x03 \x01(\x08\x12\x10\n\x08plot_pid\x18\x04 \x01(\x05\x12\x0f\n\x07log_pid\x18\x05 \x01(\x05\x12\x0e\n\x06status\x18\x06 \x01(\t\x12\x15\n\rreceived_time\x18\x07 \x01(\x01\x12\x14\n\x0cpending_time\x18\x08 \x01(\x01\x12\x14\n\x0cstarted_time\x18\t \x01(\x01\x12\x14\n\x0crunning_time\x18\n \x01(\x01\x12\x15\n\rfinished_time\x18\x0b \x01(\x01\x12\x0f\n\x07remarks\x18\x0c \x01(\t\x12)\n\x0cplot_details\x18\r \x01(\x0b\x32\x13.talent.PlotDetails\"B\n\x19PlotTaskStatusAllResponse\x12%\n\x05tasks\x18\x01 \x03(\x0b\x32\x16.talent.PlotTaskStatus\"$\n\x11PlotTaskIdRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\"6\n\x13PlotTaskStopRequest\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x0e\n\x06reason\x18\x02 \x01(\t\"<\n\x13GetPlotTaskResponse\x12%\n\ttask_list\x18\x01 \x03(\x0b\x32\x12.talent.PlotConfig\"G\n\x16PlotTaskStatusResponse\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x12\n\nis_success\x18\x02 \x01(\x08\x12\x0b\n\x03msg\x18\x03 \x01(\t\"9\n\x16PlotTaskUpdateResponse\x12\x12\n\nis_success\x18\x01 \x01(\x08\x12\x0b\n\x03msg\x18\x02 \x01(\t\"\x07\n\x05\x45mpty\"7\n\x15GetPlotByCacheRequest\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0e\n\x06\x63\x61\x63he1\x18\x02 \x01(\t\"\x1c\n\nPlotStatus\x12\x0e\n\x06status\x18\x01 \x01(\t2\xac\x04\n\x0bPlotManager\x12Q\n\x10plot_task_create\x12\x1d.talent.PlotTaskCreateRequest\x1a\x1e.talent.PlotTaskStatusResponse\x12\x45\n\x10plot_task_status\x12\x19.talent.PlotTaskIdRequest\x1a\x16.talent.PlotTaskStatus\x12H\n\x14plot_task_status_all\x12\r.talent.Empty\x1a!.talent.PlotTaskStatusAllResponse\x12M\n\x0eplot_task_stop\x12\x1b.talent.PlotTaskStopRequest\x1a\x1e.talent.PlotTaskStatusResponse\x12J\n\x10plot_task_update\x12\x16.talent.PlotTaskStatus\x1a\x1e.talent.PlotTaskUpdateResponse\x12G\n\x0eget_plot_tasks\x12\x12.talent.PlotStatus\x1a!.talent.PlotTaskStatusAllResponse\x12U\n\x11get_plot_by_cache\x12\x1d.talent.GetPlotByCacheRequest\x1a!.talent.PlotTaskStatusAllResponseb\x06proto3'
 )
 
 
@@ -592,6 +592,20 @@ _PLOTDETAILS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='is_started', full_name='talent.PlotDetails.is_started', index=23,
+      number=24, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='is_finished', full_name='talent.PlotDetails.is_finished', index=24,
+      number=25, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -605,7 +619,7 @@ _PLOTDETAILS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1224,
-  serialized_end=1797,
+  serialized_end=1838,
 )
 
 
@@ -643,8 +657,8 @@ _PLOTCONFIG_DEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1959,
-  serialized_end=1993,
+  serialized_start=2000,
+  serialized_end=2034,
 )
 
 _PLOTCONFIG = _descriptor.Descriptor(
@@ -723,8 +737,8 @@ _PLOTCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1800,
-  serialized_end=1993,
+  serialized_start=1841,
+  serialized_end=2034,
 )
 
 
@@ -769,8 +783,8 @@ _PLOTTASKCREATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1995,
-  serialized_end=2095,
+  serialized_start=2036,
+  serialized_end=2136,
 )
 
 
@@ -885,8 +899,8 @@ _PLOTTASKSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2098,
-  serialized_end=2390,
+  serialized_start=2139,
+  serialized_end=2431,
 )
 
 
@@ -917,8 +931,8 @@ _PLOTTASKSTATUSALLRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2392,
-  serialized_end=2458,
+  serialized_start=2433,
+  serialized_end=2499,
 )
 
 
@@ -949,8 +963,8 @@ _PLOTTASKIDREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2460,
-  serialized_end=2496,
+  serialized_start=2501,
+  serialized_end=2537,
 )
 
 
@@ -988,8 +1002,8 @@ _PLOTTASKSTOPREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2498,
-  serialized_end=2552,
+  serialized_start=2539,
+  serialized_end=2593,
 )
 
 
@@ -1020,8 +1034,8 @@ _GETPLOTTASKRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2554,
-  serialized_end=2614,
+  serialized_start=2595,
+  serialized_end=2655,
 )
 
 
@@ -1066,8 +1080,8 @@ _PLOTTASKSTATUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2616,
-  serialized_end=2687,
+  serialized_start=2657,
+  serialized_end=2728,
 )
 
 
@@ -1105,8 +1119,8 @@ _PLOTTASKUPDATERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2689,
-  serialized_end=2746,
+  serialized_start=2730,
+  serialized_end=2787,
 )
 
 
@@ -1130,8 +1144,8 @@ _EMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2748,
-  serialized_end=2755,
+  serialized_start=2789,
+  serialized_end=2796,
 )
 
 
@@ -1169,8 +1183,8 @@ _GETPLOTBYCACHEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2757,
-  serialized_end=2812,
+  serialized_start=2798,
+  serialized_end=2853,
 )
 
 
@@ -1201,8 +1215,8 @@ _PLOTSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2814,
-  serialized_end=2842,
+  serialized_start=2855,
+  serialized_end=2883,
 )
 
 _PLOTP2BASESTATUS.fields_by_name['scan'].message_type = _PLOTPHASESTATUS
@@ -1402,8 +1416,8 @@ _PLOTMANAGER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2845,
-  serialized_end=3401,
+  serialized_start=2886,
+  serialized_end=3442,
   methods=[
   _descriptor.MethodDescriptor(
     name='plot_task_create',

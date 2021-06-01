@@ -80,6 +80,8 @@ message PlotDetails {
     int32 stage_now = 21;
     float progress = 22;
     string memo = 23;
+    bool is_started = 24;
+    bool is_finished = 25;
 }
 
 message PlotConfig {

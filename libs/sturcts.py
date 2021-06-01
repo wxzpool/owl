@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-from libs.grpc import talent_pb2 as pb2
-from libs.grpc import talent as pb2_ref
-
-PlotPhaseStatus: pb2_ref.PlotPhaseStatus = pb2.PlotPhaseStatus
-PlotP2BaseStatus: pb2_ref.PlotP2BaseStatus = pb2.PlotP2BaseStatus
-PlotP1Status: pb2_ref.PlotP1Status = pb2.PlotP1Status
-PlotP2Status: pb2_ref.PlotP2Status = pb2.PlotP2Status
-PlotP3Status: pb2_ref.PlotP3Status = pb2.PlotP3Status
-PlotP4Status: pb2_ref.PlotPhaseStatus = pb2.PlotPhaseStatus
-PlotDetails: pb2_ref.PlotDetails = pb2.PlotDetails
+# from libs.grpc import talent_pb2 as pb2
+# from libs.grpc import talent as pb2_ref
+#
+# PlotPhaseStatus: pb2_ref.PlotPhaseStatus = pb2.PlotPhaseStatus
+# PlotP2BaseStatus: pb2_ref.PlotP2BaseStatus = pb2.PlotP2BaseStatus
+# PlotP1Status: pb2_ref.PlotP1Status = pb2.PlotP1Status
+# PlotP2Status: pb2_ref.PlotP2Status = pb2.PlotP2Status
+# PlotP3Status: pb2_ref.PlotP3Status = pb2.PlotP3Status
+# PlotP4Status: pb2_ref.PlotPhaseStatus = pb2.PlotPhaseStatus
+# PlotDetails: pb2_ref.PlotDetails = pb2.PlotDetails
 
 
 class ProcessRuntimeStatus(object):
@@ -47,6 +47,7 @@ class ProcessStatus(object):
 
 class PlotterCFG(object):
     task_id: str
+    log_store: str
     bin: str = "/tmp/chia"
     name: str
     fpk: str
@@ -65,6 +66,7 @@ class CacheCFG(object):
 
 
 class PlotProcessCFG(object):
+    log_store: str
     bin: str = "/tmp/chia"
     waiting: int = 1200
     cache1: [CacheCFG]
@@ -84,6 +86,8 @@ class SupervisorCFG(object):
     sock_path: str = "/tmp"
     grpc_host: str = "127.0.0.1:50051"
     sleep_time: int = 30
+    log_file: str
+    pid_file: str
     plot_process_config: PlotProcessCFG
 
 

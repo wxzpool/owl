@@ -3,7 +3,7 @@
 
 import os
 import sys
-import multiprocessing
+# import multiprocessing
 import time
 import datetime
 from libs.sturcts import ProcessStatus
@@ -16,6 +16,7 @@ import libs.grpc.talent_pb2_grpc as pb2_grpc
 from libs import db
 from sqlalchemy.orm.session import Session as SqlalchemySession
 import datetime
+import psutil
 
 
 MpManagerDict = dict
@@ -804,7 +805,7 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
             ret.plot_details.phase_4_status.time = plot_task.p4_total_time
             ret.plot_details.phase_4_status.cpu_usage = plot_task.p4_total_cpu
             
-            print(ret.plot_details.cache1)
+            # print(ret.plot_details.cache1)
             rets.tasks.append(ret)
         return rets
         
@@ -814,9 +815,13 @@ class TalentCFG(object):
     worker_id: str = "server1"
     overlord: str = "192.168.1.100"
     grpc_port: int = 50051
+    supervisor_pid: str
+    log_file: str
+    pid_file: str
 
 
-class Talent(multiprocessing.Process):
+# class Talent(multiprocessing.Process):
+class Talent(object):
     """
     Talent 是负责与
     """
@@ -834,7 +839,7 @@ class Talent(multiprocessing.Process):
 
         # print("Start Success")
         # daemon.output_to_log(stdout='/tmp/glue_stdout.log', stderr='/tmp/glue_stderr.log')
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
     
     @property
     def debug(self) -> bool:
@@ -858,7 +863,7 @@ class Talent(multiprocessing.Process):
         _now = time.time()
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("/tmp/talent.log", "a") as log:
+            with open(self.cfg.log_file, "a") as log:
                 log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
@@ -872,9 +877,17 @@ class Talent(multiprocessing.Process):
     def terminate(self, *args, **kwargs):
         d = self._d
         d('PID:%s Talent 收到退出请求' % os.getpid())
-        d('延迟10秒关闭')
-        time.sleep(10)
+        # d('延迟10秒关闭')
+        # time.sleep(10)
         sys.stdout.flush()
+        
+        if os.path.exists(self.cfg.supervisor_pid):
+            with open(self.cfg.supervisor_pid, 'r') as f:
+                s_pid = int(f.read())
+            if psutil.pid_exists(s_pid):
+                d("Supervisor pid=%s is running, please stop supervisor first, ignore terminate command" % s_pid)
+                return
+        
         d("Talent stopping grpc server")
         self._rpc_server.stop(grace=30)
         d("Talent stopped")

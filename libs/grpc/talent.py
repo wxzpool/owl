@@ -92,6 +92,8 @@ class PlotDetails(betterproto.Message):
     stage_now: int = betterproto.int32_field(21)
     progress: float = betterproto.float_field(22)
     memo: str = betterproto.string_field(23)
+    is_started: bool = betterproto.bool_field(24)
+    is_finished: bool = betterproto.bool_field(25)
 
 
 @dataclass

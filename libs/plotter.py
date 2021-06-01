@@ -3,8 +3,8 @@
 
 import os
 import sys
-# import multiprocessing
-import threading
+import multiprocessing
+# import threading
 import time
 from libs.sturcts import ProcessStatus, PlotterCFG
 import signal
@@ -13,20 +13,21 @@ import shlex
 import datetime
 import socket
 import time
+import psutil
 
 MpManagerDict = dict
 
 
-# class Plotter(multiprocessing.Process):
-class Plotter(threading.Thread):
+class Plotter(multiprocessing.Process):
+    # class Plotter(threading.Thread):
     """
-    Talent 是负责与
+    实际任务
     """
     _manager: MpManagerDict = None
     _app_cfg: PlotterCFG
     _app_status: ProcessStatus
     _plotter = None
-    pid: int
+    # pid: int
     # prometheus_host = "127.0.0.1"
     
     def __init__(self, cfg: PlotterCFG, sock_file: str, manager: MpManagerDict = None, debug: bool = False, *args, **kwargs):
@@ -60,8 +61,8 @@ class Plotter(threading.Thread):
         _now = time.time()
         print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("/tmp/plotter.log", "a") as log:
-                log.write('[PID: %d] [%.3f] %s' % (_pid, _now, msg))
+            with open("%s/plotter-%s.log" %(self.cfg.log_store, self.cfg.name), "a") as log:
+                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
                 log.flush()
     
     def _start_sock_logger(self):
@@ -72,16 +73,22 @@ class Plotter(threading.Thread):
             raise RuntimeError('cfg not defined')
     
     def terminate(self, *args, **kwargs):
+        exit_code = 0
         d = self._d
-        d('PID:%s Plotter 收到退出请求' % os.getpid())
+        d('PID:%s Plotter 收到退出请求' % self.pid)
         sys.stdout.flush()
-        os.kill(self._plotter.pid, 9)
+        if self._plotter.pid is not None and psutil.pid_exists(self._plotter.pid):
+            os.kill(self._plotter.pid, 9)
         d("Plotter stopped")
-        raise SystemExit(0)
+        if 'exit_code' in kwargs:
+            exit_code = kwargs['exit_code']
+        raise SystemExit(exit_code)
     
     def run(self):
+        signal.signal(signal.SIGTERM, self.terminate)
+        signal.signal(signal.SIGINT, self.terminate)
         d = self._d
-        self.pid = os.getpid()
+        # self.pid = os.getpid()
         d("sleep 1 for supervisor write back status")
         time.sleep(1)
         # signal.signal(signal.SIGTERM, self.terminate)
@@ -102,8 +109,13 @@ class Plotter(threading.Thread):
             cache2=self.cfg.cache2,
             dest=self.cfg.dest
         )
-        d(cmd)
+        # d(cmd)
         self._plotter = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True, bufsize=4096, stdout=file_handle, stderr=file_handle)
-        d(dir(self._plotter))
+        # d(dir(self._plotter))
+        self._plotter.wait()
         
+        d("run done, rt: %s" % self._plotter.returncode)
+    
+        # raise SystemExit(self._plotter.returncode)
+        return self.terminate(exit_code=self._plotter.returncode)
 

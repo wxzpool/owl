@@ -34,7 +34,7 @@ Starting phase 1/4: Forward Propagation into tmp files... Sat May 29 00:48:50 20
 Computing table 1
 EOF
 
-sleep 100
+sleep 5
 
 cat <<EOF
 F1 complete, time: 96.42 seconds. CPU (136.27%) Sat May 29 00:50:26 2021

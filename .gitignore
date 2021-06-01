@@ -128,6 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-config/
+config/config.yaml
 .DS_Store
 .idea

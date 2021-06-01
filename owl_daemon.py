@@ -20,8 +20,7 @@
 # ===============================================================================
 
 from libs.common import load_cfg, daemonize
-from libs.supervisor import Supervisor, PlotProcessCFG, SupervisorCFG, CacheCFG
-from libs.talent import Talent, TalentCFG
+import subprocess
 from time import sleep
 import os
 import signal
@@ -29,89 +28,29 @@ import click
 import time
 import sys
 
-
-class ProcessList(object):
-    talent: Talent
-    supervisor: Supervisor
+# todo 这个文件要重写
 
 
-class DaemonCFG(object):
-    pid_store: str
+def start_talent(_config):
+    pass
 
 
-class GlobalConfig(object):
-    _version = 0.1
-
-    daemon_config: DaemonCFG
-    talent_config: TalentCFG
-    supervisor_config: SupervisorCFG
-
-    def __init__(self, config: dict):
-        try:
-            if self._version != float(config['version']):
-                raise ValueError("Class Version: %s != Config Version: %s" % (self._version, config['version']))
-            self.daemon_config = DaemonCFG()
-            self.daemon_config.pid_store = config['daemon_config']['pid_store']
-            self.talent_config = TalentCFG()
-            self.talent_config.worker_id = config['talent_config']['worker_id']
-            self.talent_config.db_file = config['talent_config']['db_file']
-            self.talent_config.overlord = config['talent_config']['overlord']
-            self.talent_config.grpc_port = int(config['talent_config']['grpc_port'])
-            self.supervisor_config = SupervisorCFG()
-            self.supervisor_config.sock_path = config['supervisor_config']['sock_path']
-            self.supervisor_config.grpc_host = config['supervisor_config']['grpc_host']
-            self.supervisor_config.sleep_time = int(config['supervisor_config']['sleep_time'])
-            self.supervisor_config.plot_process_config = PlotProcessCFG()
-            self.supervisor_config.plot_process_config.bin = config['supervisor_config']['plot_process_config']['bin']
-            self.supervisor_config.plot_process_config.waiting = int(config['supervisor_config']['plot_process_config']['waiting'])
-            self.supervisor_config.plot_process_config.cache1 = list()
-            for _cache1 in config['supervisor_config']['plot_process_config']['cache1']:
-                # print(_cache1)
-                cache_cfg = CacheCFG()
-                cache_cfg.dest = _cache1['dest']
-                cache_cfg.capacity = _cache1['capacity']
-                self.supervisor_config.plot_process_config.cache1.append(cache_cfg)
-            # print(self.supervisor_config.plot_process_config.cache1)
-            self.supervisor_config.plot_process_config.cache2 = list()
-            for _cache2 in config['supervisor_config']['plot_process_config']['cache2']:
-                cache_cfg = CacheCFG()
-                cache_cfg.dest = _cache2['dest']
-                cache_cfg.capacity = _cache2['capacity']
-                self.supervisor_config.plot_process_config.cache2.append(cache_cfg)
-            self.supervisor_config.plot_process_config.dests = config['supervisor_config']['plot_process_config']['dests']
-        except (KeyError, ValueError) as e:
-            raise RuntimeError("Config error, %s" % str(e))
-    
-
-def start_talent(global_config: GlobalConfig):
-    _cfg = global_config.talent_config
-    # print(_cfg)
-    _talent = Talent(_cfg, debug=True)
-    _talent.daemon = True
-    _talent.start()
-    return _talent
-
-
-def start_supervisor(global_config: GlobalConfig):
-    _cfg = global_config.supervisor_config
-    # print(_cfg.plot_process_config.cache1)
-    _supervisor = Supervisor(_cfg, debug=True)
-    _supervisor.daemon = True
-    _supervisor.start()
-    return _supervisor
+def start_supervisor(_config):
+    pass
 
 
 @click.group()
-@click.option('-c', "--conf", default='config/config.yaml', help="Set config file")
-@click.option('-d', '--daemon', default=True, help='Run owl daemonize')
+@click.option("--conf", default='config/config.yaml', help="Set config file, default=config/config.yaml")
+@click.option('--daemon', default=True, help='Run owl daemonize, default=True')
 @click.pass_context
 def cli(ctx, conf, daemon):
     # click.echo(conf)
+    ctx.obj['config_file'] = conf
     # click.echo(daemon)
     ctx.ensure_object(dict)
     config = load_cfg(conf)
     # print(config)
-    ctx.obj['config'] = GlobalConfig(config)
+    ctx.obj['talent_pid'] = config['talent_config']['']
     ctx.obj['daemon'] = daemon
 
 
