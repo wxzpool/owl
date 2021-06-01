@@ -118,6 +118,9 @@ class Supervisor(object):
         for task in resp.tasks:
             plot_cfg = PlotterCFG()
             plot_cfg.log_store = self.cfg.plot_process_config.log_store
+            plot_cfg.bin = self.cfg.plot_process_config.bin
+            # plot_cfg.cache1 = self.cfg.plot_process_config.cache1
+            # plot_cfg.cache2 = self.cfg.plot_process_config.cache2
             plot_cfg.name = task.task_id
             plot_cfg.task_id = task.task_id
             plot_cfg.fpk = task.plot_details.fpk
