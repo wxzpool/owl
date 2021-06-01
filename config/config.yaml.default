@@ -1,0 +1,47 @@
+version: 0.2
+
+talent_config:
+  worker_id: server-1
+  db_file: /tmp/owl/talent.db
+  overlord: 192.168.1.100
+  grpc_port: 50051
+  log_file: /tmp/owl/talent.log
+  pid_file: /tmp/owl/talent.pid
+
+supervisor_config:
+  sock_path: /tmp/owl
+  grpc_host: 127.0.0.1:50051
+  sleep_time: 10
+  log_file: /tmp/owl/supervisor.log
+  pid_file: /tmp/owl/supervisor.pid
+
+  plot_process_config:
+    log_store: /tmp/owl
+    bin: /tmp/chia1
+    waiting: 1200
+    cache1:
+      - dest: /cache/level1-1
+        # capacity 单位 mb， df -m 来看
+        capacity: 7570760
+      - dest: /cache/level1-2
+        capacity: 7570760
+    cache2: []
+    dests:
+      - /data/local/16t_1
+      - /data/local/16t_2
+      - /data/local/16t_3
+      - /data/local/16t_4
+      - /data/local/16t_5
+      - /data/local/16t_6
+      - /data/local/16t_7
+      - /data/local/16t_8
+      - /data/local/16t_9
+      - /data/local/16t_10
+      - /data/local/16t_11
+      - /data/local/16t_12
+      - /data/local/16t_13
+      - /data/local/16t_14
+      - /data/local/16t_15
+      - /data/local/16t_16
+      - /data/local/16t_17
+      - /data/local/16t_18
