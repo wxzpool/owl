@@ -68,21 +68,45 @@ def start(ctx, binary):
 @cli.command()
 @click.pass_context
 def stop(ctx):
-    stop_daemon(ctx.obj)
+    stop_daemon(ctx.obj, True)
 
 
 @cli.command()
 @click.pass_context
-def restart(ctx):
-    stop_daemon(ctx.obj)
+@click.option('-b', '--binary', default=False, help='Run bin not source, default=False')
+def restart(ctx, binary):
+    stop_daemon(ctx.obj, False)
+    ctx.obj['bin'] = binary
     print("Ready to start ....")
     time.sleep(3)
     start_daemon(ctx.obj)
 
 
-def stop_daemon(config):
-    daemon_pid = _get_pid(config['daemon_pid'])
-    os.kill(daemon_pid, signal.SIGTERM)
+def stop_daemon(config, from_cli):
+    if from_cli:
+        my_pid = _get_pid(config['daemon_pid'])
+        os.kill(my_pid, signal.SIGTERM)
+        return
+    _talent_pid = _get_pid(config['talent_pid'])
+    _supervisor_pid = _get_pid(config['supervisor_pid'])
+    if _supervisor_pid > 0:
+        os.kill(_supervisor_pid, signal.SIGTERM)
+        print("Supervisor stop success")
+    else:
+        print('Supervisor not running')
+    # waiting supervisor shutdown
+    while _supervisor_pid != 0:
+        print("Waiting for supervisor shutdown")
+        time.sleep(1)
+        _supervisor_pid = _get_pid(config['supervisor_pid'])
+    if _talent_pid > 0:
+        os.kill(_talent_pid, signal.SIGTERM)
+        print("Talent stop success")
+    else:
+        print('Talent not running')
+    if from_cli:
+        my_pid = _get_pid(config['supervisor_pid'])
+        os.kill(my_pid, signal.SIGTERM)
     
 
 def _get_pid(pid_file) -> int:
@@ -93,6 +117,8 @@ def _get_pid(pid_file) -> int:
                 _pid = int(f.read())
             except ValueError:
                 pass
+    if not psutil.pid_exists(_pid):
+        _pid = 0
     return _pid
 
 
@@ -103,18 +129,8 @@ def start_daemon(config):
     daemonize(config['daemon_pid'])
 
     def terminate(*args, **kwargs):
-        _talent_pid = _get_pid(config['talent_pid'])
-        _supervisor_pid = _get_pid(config['supervisor_pid'])
-        if supervisor_pid > 0:
-            os.kill(_supervisor_pid, signal.SIGTERM)
-            print("Supervisor stop success")
-        else:
-            print('Supervisor not running')
-        if talent_pid > 0:
-            os.kill(_talent_pid, signal.SIGTERM)
-            print("Talent stop success")
-        else:
-            print('Talent not running')
+        stop_daemon(config, False)
+        
         raise SystemExit(0)
 
     signal.signal(signal.SIGINT, terminate)

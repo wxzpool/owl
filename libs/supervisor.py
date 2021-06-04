@@ -186,103 +186,111 @@ class Supervisor(object):
         d("Start Supervisor, pid=%s" % _pid)
         self._check_runtime()
         while True:
-            # 检查现有任务状态
-            d("当前任务数量: %s" % len(self._process_list))
-            for _i, pl in enumerate(self._process_list):
-                # todo 监控进程是否退出
-                # d("I: %s" % _i)
-                # d("plot task: %s = %s" % (pl.plotter.pid, pl.plotter.is_alive()))
-                # d("log task: %s = %s" % (pl.logger.pid, pl.logger.is_alive()))
-                # d("\n")
-                if not pl.plotter.is_alive():
-                    d("plotter no existed, remove logger, remove work list")
-                    os.kill(pl.logger.pid, signal.SIGTERM)
-                    del self._process_list[_i]
-            # 定时获取任务， grpc调用talent
-            # 应该先执行所有pending的任务
-            for _status in ["pending", "received"]:
-                _all_tasks = self._get_task(_status)
-                d("%s状态数量: %s" % (_status, len(_all_tasks)))
-                for t in _all_tasks:
-                    d("Task: %s" % t.task_id)
-                    # d(t.bin)
-                    # d(t.cache1)
-                    # todo 机器应该有最大上限(按照ssd划分)
-                    # todo cache2 暂时不支持
-                    # print(t.cache1)
-                    ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
-                    # d("ssd 容量: %s" % ssd_capacity)
-                    # 无法获取ssd容量会引起错误，回写状态
-                    if ssd_capacity == 0:
-                        d("无法获取ssd(%s)容量" % t.cache1)
-                        task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
-                        task_status.task_id = t.task_id
-                        task_status.status = "failed"
-                        task_status.remarks = "无法获取ssd(%s)容量" % t.cache1
-                        # d(task_status.remarks)
-                        res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
-                        # d("callback, is_success:{}, msg: {}".format(
-                        #     res.is_success,
-                        #     res.msg
-                        # ))
-                        continue
+            # 2021-06-04 进程经常自己退出，捕捉全部的error
+            try:
+                # 检查现有任务状态
+                d("当前任务数量: %s" % len(self._process_list))
+                for _i, pl in enumerate(self._process_list):
+                    # todo 监控进程是否退出
+                    # d("I: %s" % _i)
+                    # d("plot task: %s = %s" % (pl.plotter.pid, pl.plotter.is_alive()))
+                    # d("log task: %s = %s" % (pl.logger.pid, pl.logger.is_alive()))
+                    # d("\n")
+                    if not pl.plotter.is_alive():
+                        d("plotter no existed, remove logger, remove work list")
+                        os.kill(pl.logger.pid, signal.SIGTERM)
+                        del self._process_list[_i]
+                # 定时获取任务， grpc调用talent
+                # 应该先执行所有pending的任务
+                for _status in ["pending", "received"]:
+                    _all_tasks = self._get_task(_status)
+                    d("%s状态数量: %s" % (_status, len(_all_tasks)))
+                    for t in _all_tasks:
+                        d("Task: %s" % t.task_id)
+                        # d(t.bin)
+                        # d(t.cache1)
+                        # todo 机器应该有最大上限(按照ssd划分)
+                        # todo cache2 暂时不支持
+                        # print(t.cache1)
+                        ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
+                        # d("ssd 容量: %s" % ssd_capacity)
+                        # 无法获取ssd容量会引起错误，回写状态
+                        if ssd_capacity == 0:
+                            d("无法获取ssd(%s)容量" % t.cache1)
+                            task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
+                            task_status.task_id = t.task_id
+                            task_status.status = "failed"
+                            task_status.remarks = "无法获取ssd(%s)容量" % t.cache1
+                            # d(task_status.remarks)
+                            res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
+                            # d("callback, is_success:{}, msg: {}".format(
+                            #     res.is_success,
+                            #     res.msg
+                            # ))
+                            continue
+                            
+                        # with grpc.insecure_channel(self.cfg.grpc_host) as channel:
+                        #     # d("首先获取当前所有状态为{}，cache1为{}上的进程".format(
+                        #     #     "running",
+                        #     #     t.cache1
+                        #     # ))
+                        #     stub = pb2_grpc.PlotManagerStub(channel)
+                        #     request: pb2_ref.GetPlotByCacheRequest = pb2.GetPlotByCacheRequest()
+                        #     request.status = "running"
+                        #     request.cache1 = t.cache1
+                        #     resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(request)
+                        # 返回获取运行数量
+                        running_number = len(self._process_list)
+                        ksize_capacity = get_ksize_capacity(t.ksize)
+                        # print(ksize_capacity)
+                        max_proc = round(ssd_capacity / ksize_capacity)
+                        # d("SSD MAX: %s" % max_proc)
+                        if running_number >= max_proc:
+                            d("达到ssd最大进程数，任务pending")
+                            task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
+                            task_status.task_id = t.task_id
+                            task_status.status = "pending"
+                            task_status.remarks = "达到ssd最大进程数，任务pending"
+                            res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
+                            # d("callback, is_success:{}, msg: {}".format(
+                            #     res.is_success,
+                            #     res.msg
+                            # ))
+                            continue
                         
-                    with grpc.insecure_channel(self.cfg.grpc_host) as channel:
-                        # d("首先获取当前所有状态为{}，cache1为{}上的进程".format(
-                        #     "running",
-                        #     t.cache1
-                        # ))
-                        stub = pb2_grpc.PlotManagerStub(channel)
-                        request: pb2_ref.GetPlotByCacheRequest = pb2.GetPlotByCacheRequest()
-                        request.status = "running"
-                        request.cache1 = t.cache1
-                        resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(request)
-                    # 返回获取运行数量
-                    running_number = len(self._process_list)
-                    ksize_capacity = get_ksize_capacity(t.ksize)
-                    # print(ksize_capacity)
-                    max_proc = round(ssd_capacity / ksize_capacity)
-                    # d("SSD MAX: %s" % max_proc)
-                    if running_number >= max_proc:
-                        d("达到ssd最大进程数，任务pending")
+                        process = ProcessList()
+                        process.task_id = t.task_id
+                        # print("start logger")
+                        process.logger = self._start_sock_logger(t.task_id, self.cfg.sock_path, self.cfg.plot_process_config.log_store)
+                        d(process.logger)
+                        # time.sleep(3)
+                        # test sock server up
                         task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
                         task_status.task_id = t.task_id
-                        task_status.status = "pending"
-                        task_status.remarks = "达到ssd最大进程数，任务pending"
-                        res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
-                        # d("callback, is_success:{}, msg: {}".format(
-                        #     res.is_success,
-                        #     res.msg
-                        # ))
-                        continue
-                    
-                    process = ProcessList()
-                    process.task_id = t.task_id
-                    # print("start logger")
-                    process.logger = self._start_sock_logger(t.task_id, self.cfg.sock_path, self.cfg.plot_process_config.log_store)
-                    d(process.logger)
-                    # time.sleep(3)
-                    # test sock server up
-                    task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
-                    task_status.task_id = t.task_id
-                    task_status.log_pid = process.logger.pid
-                    self._update_task(task_status)
-                    while True:
-                        if os.path.exists(process.logger.sock_file):
-                            break
-                        time.sleep(1)
-                    # print("start plotter")
-                    process.plotter = self._start_plotter(t, process.logger.sock_file)
-                    d(process.plotter)
-                    self._process_list.append(process)
-                    task_status.plot_pid = process.plotter.pid
-                    task_status.status = "started"
-                    task_status.remarks = "任务开始"
-                    self._update_task(task_status)
-                # 然后获取最新状态为received的任务，并执行
-                # todo not test
-            # sleep and run again
-            time.sleep(self.cfg.sleep_time)
+                        task_status.log_pid = process.logger.pid
+                        self._update_task(task_status)
+                        while True:
+                            if os.path.exists(process.logger.sock_file):
+                                break
+                            time.sleep(1)
+                        # print("start plotter")
+                        process.plotter = self._start_plotter(t, process.logger.sock_file)
+                        d(process.plotter)
+                        self._process_list.append(process)
+                        task_status.plot_pid = process.plotter.pid
+                        task_status.status = "started"
+                        task_status.remarks = "任务开始"
+                        self._update_task(task_status)
+                    # 然后获取最新状态为received的任务，并执行
+                    # todo not test
+                # sleep and run again
+                time.sleep(self.cfg.sleep_time)
+            except Exception as e:
+                raise e
+                # import traceback
+                # d("GET ERROR: %s" % traceback.print_tb(e))
+                # d("Trace frame: %s" % e.__traceback__.tb_frame)
+                # d("Trace line: %s" % e.__traceback__.tb_lineno)
             
 
         
