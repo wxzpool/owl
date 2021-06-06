@@ -861,11 +861,11 @@ class Talent(object):
         _name = "Talent"
         _pid = os.getpid()
         _now = time.time()
-        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open(self.cfg.log_file, "a") as log:
-                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
-                log.flush()
+            print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
+        with open(self.cfg.log_file, "a") as log:
+            log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
+            log.flush()
     
     def _start_sock_logger(self):
         pass

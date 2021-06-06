@@ -66,6 +66,7 @@ class CacheCFG(object):
 
 
 class PlotProcessCFG(object):
+    cap_limit: int = 90
     log_store: str
     bin: str = "/tmp/chia"
     waiting: int = 1200

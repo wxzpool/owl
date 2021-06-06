@@ -70,11 +70,11 @@ class Supervisor(object):
         _name = "Supervisor"
         _pid = os.getpid()
         _now = time.time()
-        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open(self.cfg.log_file, "a") as log:
-                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
-                log.flush()
+            print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
+        with open(self.cfg.log_file, "a") as log:
+            log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
+            log.flush()
     
     def _start_sock_logger(self, task_id, sock_path, log_store) -> LogReceiver:
         logger_cfg = LogReceiverCFG()
@@ -209,13 +209,17 @@ class Supervisor(object):
                         d("Task: %s" % t.task_id)
                         # d(t.bin)
                         # d(t.cache1)
-                        # todo 机器应该有最大上限(按照ssd划分)
+                        # 机器应该有最大上限(按照ssd划分)
                         # todo cache2 暂时不支持
                         # print(t.cache1)
-                        ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
-                        # d("ssd 容量: %s" % ssd_capacity)
-                        # 无法获取ssd容量会引起错误，回写状态
-                        if ssd_capacity == 0:
+                        # 2021-06-06 ssd 容量使用psutil获得
+                        # ssd_capacity = self.cfg.plot_process_config.get_cache1_info(t.cache1)
+                        try:
+                            ssd_usage = psutil.disk_usage(t.cache1)
+                        except FileNotFoundError:
+                            # d("ssd 容量: %s" % ssd_capacity)
+                            # 无法获取ssd容量会引起错误，回写状态
+                            # if ssd_capacity == 0:
                             d("无法获取ssd(%s)容量" % t.cache1)
                             task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
                             task_status.task_id = t.task_id
@@ -228,7 +232,7 @@ class Supervisor(object):
                             #     res.msg
                             # ))
                             continue
-                            
+                        ssd_capacity = ssd_usage.total / 1024 / 1024
                         # with grpc.insecure_channel(self.cfg.grpc_host) as channel:
                         #     # d("首先获取当前所有状态为{}，cache1为{}上的进程".format(
                         #     #     "running",
@@ -257,7 +261,36 @@ class Supervisor(object):
                             #     res.msg
                             # ))
                             continue
-                        
+                        # 2021-06-06 增加最终目标容量判断
+                        _dest = t.dest
+                        try:
+                            _dest_usage = psutil.disk_usage(_dest)
+                        except FileNotFoundError:
+                            _msg = "无法获得%s的容量" % _dest
+                            d(_msg)
+                            task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
+                            task_status.task_id = t.task_id
+                            task_status.status = 'failed'
+                            task_status.remarks = _msg
+                            res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
+                            continue
+                        if _dest_usage.percent > self.cfg.plot_process_config.cap_limit:
+                            _total = round(_dest_usage.total / 1024 / 1024 / 1024 / 1024, 2)
+                            _free = round(_dest_usage.free / 1024 / 1024 / 1024 / 1024, 2)
+                            _msg = "使用容量超过阈值 {a} > {b}, dest: {dest}, total: {total}, free: {free}".format(
+                                a=_dest_usage.percent,
+                                b=self.cfg.plot_process_config.cap_limit,
+                                dest=_dest,
+                                total=_total,
+                                free=_free
+                            )
+                            d(_msg)
+                            task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
+                            task_status.task_id = t.task_id
+                            task_status.status = 'failed'
+                            task_status.remarks = _msg
+                            res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
+                            continue
                         process = ProcessList()
                         process.task_id = t.task_id
                         # print("start logger")

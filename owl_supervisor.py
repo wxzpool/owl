@@ -52,24 +52,25 @@ def cli(ctx, conf, daemon, debug):
         ctx.obj['config'].grpc_host = config['supervisor_config']['grpc_host']
         ctx.obj['config'].sleep_time = int(config['supervisor_config']['sleep_time'])
         ctx.obj['config'].plot_process_config = PlotProcessCFG()
+        ctx.obj['config'].plot_process_config.cap_limit = config['supervisor_config']['plot_process_config']['cap_limit']
         ctx.obj['config'].plot_process_config.log_store = config['supervisor_config']['plot_process_config']['log_store']
         ctx.obj['config'].plot_process_config.bin = config['supervisor_config']['plot_process_config']['bin']
         ctx.obj['config'].plot_process_config.waiting = int(config['supervisor_config']['plot_process_config']['waiting'])
         ctx.obj['config'].plot_process_config.cache1 = list()
-        for _cache1 in config['supervisor_config']['plot_process_config']['cache1']:
-            # print(_cache1)
-            cache_cfg = CacheCFG()
-            cache_cfg.dest = _cache1['dest']
-            cache_cfg.capacity = _cache1['capacity']
-            ctx.obj['config'].plot_process_config.cache1.append(cache_cfg)
-        # print(self.supervisor_config.plot_process_config.cache1)
-        ctx.obj['config'].plot_process_config.cache2 = list()
-        for _cache2 in config['supervisor_config']['plot_process_config']['cache2']:
-            cache_cfg = CacheCFG()
-            cache_cfg.dest = _cache2['dest']
-            cache_cfg.capacity = _cache2['capacity']
-            ctx.obj['config'].plot_process_config.cache2.append(cache_cfg)
-        ctx.obj['config'].plot_process_config.dests = config['supervisor_config']['plot_process_config']['dests']
+        # for _cache1 in config['supervisor_config']['plot_process_config']['cache1']:
+        #     # print(_cache1)
+        #     cache_cfg = CacheCFG()
+        #     cache_cfg.dest = _cache1['dest']
+        #     cache_cfg.capacity = _cache1['capacity']
+        #     ctx.obj['config'].plot_process_config.cache1.append(cache_cfg)
+        # # print(self.supervisor_config.plot_process_config.cache1)
+        # ctx.obj['config'].plot_process_config.cache2 = list()
+        # for _cache2 in config['supervisor_config']['plot_process_config']['cache2']:
+        #     cache_cfg = CacheCFG()
+        #     cache_cfg.dest = _cache2['dest']
+        #     cache_cfg.capacity = _cache2['capacity']
+        #     ctx.obj['config'].plot_process_config.cache2.append(cache_cfg)
+        # ctx.obj['config'].plot_process_config.dests = config['supervisor_config']['plot_process_config']['dests']
     except (KeyError, ValueError) as e:
         raise RuntimeError("Config error, %s" % str(e))
 
@@ -105,12 +106,12 @@ def stop_daemon(pid):
 
 
 def start_daemon(pid, config, daemon, debug):
-    supervisor = Supervisor(config, debug=debug, pid=pid)
+    target = Supervisor(config, debug=debug, pid=pid)
 
     daemonize(pid, daemon)
     
     try:
-        supervisor.run()
+        target.run()
     except InterruptedError:
         pass
 

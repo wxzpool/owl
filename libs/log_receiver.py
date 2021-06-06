@@ -15,7 +15,7 @@ import grpc
 from .grpc import talent_pb2 as pb2
 from .grpc import talent_pb2_grpc as pb2_grpc
 from .grpc import talent as pb2_ref
-
+import datetime
 
 MpManagerDict = dict
 
@@ -42,6 +42,25 @@ class LogReceiver(multiprocessing.Process):
         self.cfg = cfg
         self._debug = debug
         self.sock_file = "%s/%s.sock" % (self.cfg.sock_path, self.cfg.name)
+        _today = datetime.datetime.now()
+        _today_month = '{:02d}'.format(_today.month)
+        _today_month_day = '{:02d}'.format(_today.day)
+        _today_of_year = _today.year
+        # _log_store_now = "{log_store}/{mm}{dd}".format(
+        #     log_store=os.path.dirname(self.cfg.log_store),
+        #     mm=_today_month,
+        #     dd=_today_of_month
+        # )
+        # 按日期分类日志
+        # if not os.path.exists(_log_store_now):
+        #     os.makedirs(_log_store_now)
+        self.log_file = "{log_store}/{yy}-{mm}-{dd}_{task_id}.log".format(
+            log_store=os.path.dirname(self.cfg.log_store),
+            task_id=self.cfg.task_id,
+            yy=_today_of_year,
+            mm=_today_month,
+            dd=_today_month_day
+        )
         if manager is not None:
             self._manager = manager
         # print("LogReceiver Start Success")
@@ -51,11 +70,16 @@ class LogReceiver(multiprocessing.Process):
         _name = "LogReceiver-%s" % self.cfg.name
         _pid = os.getpid()
         _now = time.time()
-        # print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("%s/log_receiver-%s.log" % (self.cfg.log_store, self.cfg.name), "a") as log:
-                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
-                log.flush()
+            print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
+        with open("%s/log_receiver-%s.log" % (self.cfg.log_store, self.cfg.name), "a") as log:
+            log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
+            log.flush()
+    
+    def write_back_log(self, s: str):
+        with open(self.log_file, 'a') as f:
+            f.write(s)
+            f.flush()
     
     def terminate(self, *args, **kwargs):
         self._d('PID:%s LogReceiver收到退出请求' % self.pid)
@@ -129,6 +153,8 @@ class LogReceiver(multiprocessing.Process):
                 # ))
                 # data = client.recv(4096)
                 lines = data.decode()
+                # 先回写日志
+                self.write_back_log(lines)
                 for line in lines.split("\n"):
                     
                     # d("data: %s" % line)

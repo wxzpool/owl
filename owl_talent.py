@@ -88,11 +88,14 @@ def stop_daemon(pid):
 
 
 def start_daemon(pid, config, daemon, debug):
-    supervisor = Talent(config, debug=debug, pid=pid)
+    target = Talent(config, debug=debug, pid=pid)
 
     daemonize(pid, daemon)
-    
-    supervisor.run()
+
+    try:
+        target.run()
+    except InterruptedError:
+        pass
 
 
 if __name__ == '__main__':
