@@ -1,4 +1,12 @@
-version: 0.2
+version: 0.3
+
+api_config:
+  listen: 0.0.0.0
+  port: 50080
+  threaded: true
+  log_file: /tmp/owl/api.log
+  pid_file: /tmp/owl/api.pid
+
 
 talent_config:
   worker_id: server-1

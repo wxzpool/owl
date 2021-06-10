@@ -6,3 +6,4 @@ protobuf3
 pyyaml
 click
 betterproto
+flask

@@ -92,3 +92,9 @@ class SupervisorCFG(object):
     plot_process_config: PlotProcessCFG
 
 
+class ApiCFG(object):
+    listen: str = "0.0.0.0"
+    port: int = 50080
+    threaded: bool = True
+    log_file: str
+    pid_file: str
