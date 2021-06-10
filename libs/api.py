@@ -24,6 +24,7 @@ import libs.grpc.talent as pb2_ref
 import libs.grpc.talent_pb2 as pb2
 import libs.grpc.talent_pb2_grpc as pb2_grpc
 from flask import Flask, request, jsonify, redirect, Response
+from google.protobuf.json_format import MessageToDict
 
 
 grpc_host_default = '127.0.0.1:50051'
@@ -130,7 +131,7 @@ def plot_task_create():
             "message": "参数错误，{}未定义".format('dest_path')
         }), 400
 
-    req: pb2_ref.PlotTaskCreateRequest = pb2.PlotTaskCreateRequest()
+    req: pb2.PlotTaskCreateRequest = pb2.PlotTaskCreateRequest()
     req.worker_id = worker_id
 
     req.task_id = json_data['task_id']
@@ -146,16 +147,16 @@ def plot_task_create():
 
     with grpc.insecure_channel(grpc_host) as channel:
         stub = pb2_grpc.PlotManagerStub(channel)
-        resp: pb2_ref.PlotTaskStatusResponse = stub.plot_task_create(req)
+        resp: pb2.PlotTaskStatusResponse = stub.plot_task_create(req)
 
     return jsonify({
         "grpc_call": "plot_task_create",
-        "args": req.to_dict(),
-        "resp": resp.to_dict()
+        "args": MessageToDict(req),
+        "resp": MessageToDict(resp)
     })
 
 
-@app.route('/plot/task/status/<task_id>')
+@app.route('/plot/task/status/<task_id>', methods=['GET', 'POST'])
 def plot_task_status(task_id):
     if task_id is None:
         json_data = request.get_json()
@@ -177,8 +178,8 @@ def plot_task_status(task_id):
 
     return jsonify({
         "grpc_call": "plot_task_status",
-        "args": req.to_dict(),
-        "resp": resp.to_dict()
+        "args": MessageToDict(req),
+        "resp": MessageToDict(resp)
     })
 
 
@@ -196,8 +197,8 @@ def plot_task_status_all(task_status):
 
     return jsonify({
         "grpc_call": "get_plot_tasks",
-        "args": req.to_dict(),
-        "resp": resp.to_dict()
+        "args": MessageToDict(req),
+        "resp": MessageToDict(resp)
     })
 
 

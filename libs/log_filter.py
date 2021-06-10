@@ -569,8 +569,8 @@ class LogFilter(object):
         t = reg.search(s)
         if t is not None and 'time' in t.groupdict() and 'cpu' in t.groupdict():
             # self.store.total_time = pb2.PlotPhaseStatus()
-            self.store.plot_details.total_time.stage = "copy"
-            self.store.plot_details.total_time.time = float(t.groupdict()['time'])
-            self.store.plot_details.total_time.cpu_usage = float(t.groupdict()['cpu'])
+            self.store.plot_details.copy_time.stage = "copy"
+            self.store.plot_details.copy_time.time = float(t.groupdict()['time'])
+            self.store.plot_details.copy_time.cpu_usage = float(t.groupdict()['cpu'])
             return True
         return False
