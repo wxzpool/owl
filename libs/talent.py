@@ -255,6 +255,13 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         # ret.plot_details.phase_4_status = pb2.PlotPhaseStatus()
         ret.plot_details.phase_4_status.time = plot_task.p4_total_time
         ret.plot_details.phase_4_status.cpu_usage = plot_task.p4_total_cpu
+
+        ret.plot_details.copy_time.time = plot_task.copy_time
+        ret.plot_details.copy_time.cpu_usage = plot_task.copy_cpu
+
+        ret.plot_details.total_time.time = plot_task.total_time
+        ret.plot_details.total_time.cpu_usage = plot_task.total_cpu
+        
         # ret.plot_details.fpk = plot_task.fpk
         # ret.plot_details.ppk =
         # print("ret: %s" % ret)
@@ -807,6 +814,9 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
 
             ret.plot_details.copy_time.time = plot_task.copy_time
             ret.plot_details.copy_time.cpu_usage = plot_task.copy_cpu
+
+            ret.plot_details.total_time.time = plot_task.total_time
+            ret.plot_details.total_time.cpu_usage = plot_task.total_cpu
             
             # print(ret.plot_details.cache1)
             rets.tasks.append(ret)
