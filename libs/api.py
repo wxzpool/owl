@@ -52,68 +52,79 @@ def plot_task_create():
     grpc_host = app.config.get('grpc_host')
     if grpc_host is None:
         grpc_host = grpc_host_default
-    task_id = request.args.get('task_id')
-    if task_id is None:
+
+    json_data = request.get_json(force=True, silent=True)
+
+    if json_data is None and type(json_data) == dict:
+        return jsonify({
+            "code": 400,
+            "message": "参数错误，请求非json格式"
+        }), 400
+
+    # task_id = request.args.get('task_id')
+    if 'task_id' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('task_id')
         }), 400
 
-    ppk = request.args.get('ppk')
-    if ppk is None:
+    # ppk = request.args.get('ppk')
+    if 'ppk' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('ppk')
         }), 400
 
-    fpk = request.args.get('fpk')
-    if fpk is None:
+    # fpk = request.args.get('fpk')
+    if 'fpk' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('fpk')
         }), 400
 
-    ksize = request.args.get('ksize')
-    if ksize is None:
+    # ksize = request.args.get('ksize')
+    if 'ksize' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('ksize')
         }), 400
 
-    threads = request.args.get('threads')
-    if threads is None:
+    # threads = request.args.get('threads')
+    if 'threads' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('threads')
         }), 400
 
-    buffer = request.args.get('buffer')
-    if buffer is None:
+    # buffer = request.args.get('buffer')
+    if 'buffer' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('buffer')
         }), 400
 
-    cache1 = request.args.get('cache1')
-    if cache1 is None:
+    # cache1 = request.args.get('cache1')
+    if 'cache1' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('cache1')
         }), 400
 
-    cache2 = request.args.get('cache2')
-    if cache2 is None:
-        cache2 = cache1
+    # cache2 = request.args.get('cache2')
+    if 'cache2' in json_data:
+        cache2 = json_data['cache2']
+    else:
+        cache2 = json_data['cache1']
 
-    dest_type = request.args.get('dest_type')
-    if dest_type is None or dest_type not in ['local', 'nfs']:
+    # dest_type = request.args.get('dest_type')
+    if 'dest_type' not in json_data or json_data['dest_type'] not in ['local', 'nfs']:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义或者定义错误，只允许{}".format('dest_type', ['local', 'nfs'])
         }), 400
 
-    dest_path = request.args.get('dest_path')
-    if dest_path is None:
+    # dest_path = request.args.get('dest_path')
+    if 'dest_path' not in json_data:
         return jsonify({
             "code": 400,
             "message": "参数错误，{}未定义".format('dest_path')
@@ -122,16 +133,16 @@ def plot_task_create():
     req: pb2_ref.PlotTaskCreateRequest = pb2.PlotTaskCreateRequest()
     req.worker_id = worker_id
 
-    req.task_id = task_id
-    req.plot_config.ppk = ppk
-    req.plot_config.fpk = fpk
-    req.plot_config.ksize = ksize
-    req.plot_config.threads = threads
-    req.plot_config.buffer = buffer
-    req.plot_config.cache1 = cache1
+    req.task_id = json_data['task_id']
+    req.plot_config.ppk = json_data['ppk']
+    req.plot_config.fpk = json_data['fpk']
+    req.plot_config.ksize = json_data['ksize']
+    req.plot_config.threads = json_data['threads']
+    req.plot_config.buffer = json_data['buffer']
+    req.plot_config.cache1 = json_data['cache1']
     req.plot_config.cache2 = cache2
-    req.plot_config.dest.type = dest_type
-    req.plot_config.dest.path = dest_path
+    req.plot_config.dest.type = json_data['dest_type']
+    req.plot_config.dest.path = json_data['dest_path']
 
     with grpc.insecure_channel(grpc_host) as channel:
         stub = pb2_grpc.PlotManagerStub(channel)
@@ -147,8 +158,11 @@ def plot_task_create():
 @app.route('/plot/task/status/<task_id>')
 def plot_task_status(task_id):
     if task_id is None:
-        task_status = request.args.get("status")
-        if task_status is None:
+        json_data = request.get_json()
+        # task_status = request.args.get("status")
+        if type(json_data) is dict and 'status' in json_data:
+            task_status = json_data['status']
+        else:
             task_status = "running"
         return plot_task_status_all(task_status)
     req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest()
