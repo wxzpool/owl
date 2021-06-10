@@ -158,16 +158,6 @@ def plot_task_create():
 
 @app.route('/plot/task/status/<task_id>', methods=['GET', 'POST'])
 def plot_task_status(task_id):
-    if task_id is None:
-        json_data = request.get_json()
-        # task_status = request.args.get("status")
-        if type(json_data) is dict and 'status' in json_data:
-            task_status = json_data['status']
-        else:
-            task_status = request.args.get("status")
-            if task_status is None:
-                task_status = "running"
-        return plot_task_status_all(task_status)
     req: pb2_ref.PlotTaskIdRequest = pb2.PlotTaskIdRequest()
     req.task_id = task_id
     grpc_host = app.config.get('grpc_host')
@@ -185,7 +175,17 @@ def plot_task_status(task_id):
     })
 
 
-def plot_task_status_all(task_status):
+@app.route('/plot/task/all', methods=['GET', 'POST'])
+def plot_task_status_all():
+    json_data = request.get_json()
+    # task_status = request.args.get("status")
+    if type(json_data) is dict and 'status' in json_data:
+        task_status = json_data['status']
+    else:
+        task_status = request.args.get("status")
+        if task_status is None:
+            task_status = "running"
+
     req: pb2_ref.PlotStatus = pb2.PlotStatus()
     req.status = task_status
 
