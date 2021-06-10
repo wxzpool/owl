@@ -6,7 +6,7 @@ import re
 # import datetime
 from os import path
 from .grpc import talent as pb2_ref
-# import time
+import time
 
 
 def escape_ansi(line):
@@ -429,6 +429,7 @@ class LogFilter(object):
             self.store.plot_details.progress = 100
             self.store.plot_details.is_finished = True
             self.store.status = "finished"
+            self.store.finished_time = time.time()
             # print(self)
             return True
         return False

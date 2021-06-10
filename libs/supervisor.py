@@ -255,6 +255,7 @@ class Supervisor(object):
                             task_status.task_id = t.task_id
                             task_status.status = "pending"
                             task_status.remarks = "达到ssd最大进程数，任务pending"
+                            task_status.pending_time = time.time()
                             res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
                             # d("callback, is_success:{}, msg: {}".format(
                             #     res.is_success,
@@ -312,6 +313,7 @@ class Supervisor(object):
                         self._process_list.append(process)
                         task_status.plot_pid = process.plotter.pid
                         task_status.status = "started"
+                        task_status.started_time = time.time()
                         task_status.remarks = "任务开始"
                         self._update_task(task_status)
                     # 然后获取最新状态为received的任务，并执行

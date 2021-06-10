@@ -102,8 +102,8 @@ class TalentManager(pb2_grpc.PlotManagerServicer):
         ret.plot_pid = plot_task.plot_pid
         ret.log_pid = plot_task.log_pid
         ret.status = plot_task.status
-        if type(plot_task.received_time) == datetime.datetime:
-            ret.received_time = plot_task.received_time.timestamp()
+        # if type(plot_task.received_time) == datetime.datetime:
+        #     ret.received_time = plot_task.received_time.timestamp()
         if type(plot_task.pending_time) == datetime.datetime:
             ret.pending_time = plot_task.pending_time.timestamp()
         if type(plot_task.started_time) == datetime.datetime:
