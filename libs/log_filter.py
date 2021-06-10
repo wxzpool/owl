@@ -428,6 +428,7 @@ class LogFilter(object):
             self.store.plot_details.dest_file_name = path.basename(self.store.plot_details.dest_path)
             self.store.plot_details.progress = 100
             self.store.plot_details.is_finished = True
+            self.store.status = "finished"
             # print(self)
             return True
         return False
