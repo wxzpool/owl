@@ -207,6 +207,7 @@ class Supervisor(object):
                     d("%s状态数量: %s" % (_status, len(_all_tasks)))
                     for t in _all_tasks:
                         d("Task: %s" % t.task_id)
+                        # d("Cache1: %s" % t.cache1)
                         # d(t.bin)
                         # d(t.cache1)
                         # 机器应该有最大上限(按照ssd划分)
@@ -248,7 +249,7 @@ class Supervisor(object):
                         ksize_capacity = get_ksize_capacity(t.ksize)
                         # print(ksize_capacity)
                         max_proc = round(ssd_capacity / ksize_capacity)
-                        # d("SSD MAX: %s" % max_proc)
+                        d("%s MAX: %s" % (t.cache1, max_proc))
                         if running_number >= max_proc:
                             d("达到ssd最大进程数，任务pending")
                             task_status: pb2_ref.PlotTaskStatus = pb2.PlotTaskStatus()
