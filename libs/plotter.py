@@ -98,7 +98,8 @@ class Plotter(multiprocessing.Process):
         s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         s.connect(self.sock_file)
         file_handle = s.makefile('wb')
-        cmd = "{bin} plots create -k {ksize} -r {thread} -b {mem} -f {fpk} -p {ppk} -t {cache1} -2 {cache2} -d {dest}".format(
+        cmd = "{python} {bin} plots create -k {ksize} -r {thread} -b {mem} -f {fpk} -p {ppk} -t {cache1} -2 {cache2} -d {dest}".format(
+            python=self.cfg.python,
             bin=self.cfg.bin,
             ksize=self.cfg.ksize,
             thread=self.cfg.thread,

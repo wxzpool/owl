@@ -48,7 +48,8 @@ class ProcessStatus(object):
 class PlotterCFG(object):
     task_id: str
     log_store: str
-    bin: str = "/tmp/chia"
+    bin: str
+    python: str
     name: str
     fpk: str
     ppk: str
@@ -68,7 +69,8 @@ class CacheCFG(object):
 class PlotProcessCFG(object):
     cap_limit: int = 90
     log_store: str
-    bin: str = "/tmp/chia"
+    python: str
+    bin: str
     waiting: int = 1200
     cache1: [CacheCFG]
     cache2: [CacheCFG]

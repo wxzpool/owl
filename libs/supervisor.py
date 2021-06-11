@@ -26,6 +26,7 @@ MpManagerDict = dict
 
 class ProcessList(object):
     task_id: str
+    cfg: PlotterCFG
     plotter: Plotter
     logger: LogReceiver
 
@@ -119,6 +120,7 @@ class Supervisor(object):
             plot_cfg = PlotterCFG()
             plot_cfg.log_store = self.cfg.plot_process_config.log_store
             plot_cfg.bin = self.cfg.plot_process_config.bin
+            plot_cfg.python = self.cfg.plot_process_config.python
             # plot_cfg.cache1 = self.cfg.plot_process_config.cache1
             # plot_cfg.cache2 = self.cfg.plot_process_config.cache2
             plot_cfg.name = task.task_id
@@ -177,6 +179,13 @@ class Supervisor(object):
                 pass
         d("Supervisor stopped")
         raise SystemExit(0)
+    
+    def _count_cache1_task(self, cache1) -> int:
+        _c = 0
+        for _p in self._process_list:
+            if cache1 == _p.cfg.cache1:
+                _c += 1
+        return _c
     
     def run(self):
         signal.signal(signal.SIGTERM, self.terminate)
@@ -245,7 +254,7 @@ class Supervisor(object):
                         #     request.cache1 = t.cache1
                         #     resp: pb2_ref.PlotTaskStatusAllResponse = stub.get_plot_tasks(request)
                         # 返回获取运行数量
-                        running_number = len(self._process_list)
+                        running_number = self._count_cache1_task(t.cache1)
                         ksize_capacity = get_ksize_capacity(t.ksize)
                         # print(ksize_capacity)
                         max_proc = round(ssd_capacity / ksize_capacity)
@@ -294,6 +303,7 @@ class Supervisor(object):
                             res: pb2_ref.PlotTaskUpdateResponse = self._update_task(task_status)
                             continue
                         process = ProcessList()
+                        process.cfg = t
                         process.task_id = t.task_id
                         # print("start logger")
                         process.logger = self._start_sock_logger(t.task_id, self.cfg.sock_path, self.cfg.plot_process_config.log_store)

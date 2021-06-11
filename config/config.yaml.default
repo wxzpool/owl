@@ -26,28 +26,6 @@ supervisor_config:
   plot_process_config:
     cap_limit: 90
     log_store: /tmp/owl
+    python: /tmp/python
     bin: /tmp/chia1
     waiting: 1200
-    # cache1:
-    #   - dest: /cache/level1-1
-    #   - dest: /cache/level1-2
-    # cache2: []
-    # dests:
-    #   - /data/local/16t_1
-    #   - /data/local/16t_2
-    #   - /data/local/16t_3
-    #   - /data/local/16t_4
-    #   - /data/local/16t_5
-    #   - /data/local/16t_6
-    #   - /data/local/16t_7
-    #   - /data/local/16t_8
-    #   - /data/local/16t_9
-    #   - /data/local/16t_10
-    #   - /data/local/16t_11
-    #   - /data/local/16t_12
-    #   - /data/local/16t_13
-    #   - /data/local/16t_14
-    #   - /data/local/16t_15
-    #   - /data/local/16t_16
-    #   - /data/local/16t_17
-    #   - /data/local/16t_18

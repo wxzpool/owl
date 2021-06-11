@@ -54,6 +54,7 @@ def cli(ctx, conf, daemon, debug):
         ctx.obj['config'].plot_process_config = PlotProcessCFG()
         ctx.obj['config'].plot_process_config.cap_limit = config['supervisor_config']['plot_process_config']['cap_limit']
         ctx.obj['config'].plot_process_config.log_store = config['supervisor_config']['plot_process_config']['log_store']
+        ctx.obj['config'].plot_process_config.python = config['supervisor_config']['plot_process_config']['python']
         ctx.obj['config'].plot_process_config.bin = config['supervisor_config']['plot_process_config']['bin']
         ctx.obj['config'].plot_process_config.waiting = int(config['supervisor_config']['plot_process_config']['waiting'])
         ctx.obj['config'].plot_process_config.cache1 = list()
