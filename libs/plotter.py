@@ -59,11 +59,11 @@ class Plotter(multiprocessing.Process):
         _name = "Plotter-%s" % self.cfg.task_id
         _pid = os.getpid()
         _now = time.time()
-        print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
         if self._debug:
-            with open("%s/plotter-%s.log" %(self.cfg.log_store, self.cfg.name), "a") as log:
-                log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
-                log.flush()
+            print('[%s]-[PID: %d]-[%.3f] %s' % (_name, _pid, _now, msg))
+        with open("%s/plotter-%s.log" %(self.cfg.log_store, self.cfg.name), "a") as log:
+            log.write('[PID: %d] [%.3f] %s\n' % (_pid, _now, msg))
+            log.flush()
     
     def _start_sock_logger(self):
         pass
