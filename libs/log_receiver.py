@@ -55,7 +55,7 @@ class LogReceiver(multiprocessing.Process):
         # if not os.path.exists(_log_store_now):
         #     os.makedirs(_log_store_now)
         self.log_file = "{log_store}/{yy}-{mm}-{dd}_{task_id}.log".format(
-            log_store=os.path.dirname(self.cfg.log_store),
+            log_store=self.cfg.log_store,
             task_id=self.cfg.task_id,
             yy=_today_of_year,
             mm=_today_month,

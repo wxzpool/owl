@@ -110,12 +110,12 @@ class Plotter(multiprocessing.Process):
             dest=self.cfg.dest
         )
         # d(cmd)
-        self._plotter = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True, bufsize=4096, stdout=file_handle, stderr=file_handle)
+        self._plotter = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True, bufsize=4096, stdout=file_handle, stderr=subprocess.PIPE)
         # d(dir(self._plotter))
         self._plotter.wait()
         
         d("run done, rt: %s" % self._plotter.returncode)
-    
+        d("stderr: %s" % self._plotter.stderr.read())
         # raise SystemExit(self._plotter.returncode)
         return self.terminate(exit_code=self._plotter.returncode)
 
