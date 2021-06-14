@@ -395,16 +395,20 @@ class LogFilter(object):
     
     def _is_started(self, s: str) -> bool:
         # 2021-05-08T17:09:48.988  chia.plotting.create_plots       : ^[[32mINFO    ^[[0m Creating 1 plots of size 32, pool public key:  a0e82a32854d3ab3714ec487c79f88d2b2b109ad981ccb5bc9790d5f3a82105ae82f3325307460eb62c174f507b81782 farmer public key: 98b0a05b016fb261a6dae9dd5a0cd305530deb4cf379a505813d5e5f34001c58d1b8461b161d313fb92f4f0a02a9366d^[[0m
-        reg = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\s+chia\.plotting\.create_plots\s+:\s+INFO\s+\s+Creating 1 plots of size 32, pool public key:\s+(?P<pool_key>[^\s]+)\s+farmer public key:\s+(?P<farmer_key>\w+)')
+        # reg = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\s+chia\.plotting\.create_plots\s+:\s+INFO\s+\s+Creating 1 plots of size 32, pool public key:\s+(?P<pool_key>[^\s]+)\s+farmer public key:\s+(?P<farmer_key>\w+)')
+        # todo 调用方式不会显示info信息，需要重新识别开始
+        # Starting plotting progress into temporary dirs: /cache/level1-1 and /cache/level1-1
+        reg = re.compile(r'^Starting\s+plotting\s+progress\s+into\s+temporary\s+dirs:\s+')
         # print(s)
         t = reg.search(s)
         # print(t)
         # if t:
         #     print(t.groupdict())
-        if t is not None and 'pool_key' in t.groupdict() and 'farmer_key' in t.groupdict():
+        # if t is not None and 'pool_key' in t.groupdict() and 'farmer_key' in t.groupdict():
+        if t is not None:
             # print('start')
-            self.store.plot_details.ppk = t.groupdict()['pool_key']
-            self.store.plot_details.fpk = t.groupdict()['farmer_key']
+            # self.store.plot_details.ppk = t.groupdict()['pool_key']
+            # self.store.plot_details.fpk = t.groupdict()['farmer_key']
             self.store.plot_details.is_started = True
             # print(self)
             self.store.status = "running"
@@ -444,8 +448,9 @@ class LogFilter(object):
         return False
 
     def _get_id(self, s: str) -> bool:
+        # todo 2021-06-21 ID并没有正常识别出来
         # ID: 3c99851e3fa6a8f1bc4025ac3a18773ef34a19ae27b792cd9482442dfac75d2e
-        reg = re.compile(r'^ID:\s+(?P<id>\w+)')
+        reg = re.compile(r'ID:\s+(?P<id>\w+)')
         t = reg.search(s)
         if t is not None and 'id' in t.groupdict():
             self.store.plot_details.id = t.groupdict()['id']

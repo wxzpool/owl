@@ -20,8 +20,10 @@ import libs.grpc.talent_pb2 as pb2
 import libs.grpc.talent_pb2_grpc as pb2_grpc
 from .common import get_ksize_capacity
 import psutil
+import logging
 
 MpManagerDict = dict
+# logging.Logger.setLevel(level='info')
 
 
 class ProcessList(object):
@@ -171,7 +173,7 @@ class Supervisor(object):
             self._update_task(task_status)
             # pl.plotter.terminate()
             try:
-                os.kill(pl.plotter.pid, signal.SIGKILL)
+                os.kill(pl.plotter.pid, signal.SIGTERM)
                 os.kill(pl.logger.pid, signal.SIGTERM)
                 pl.plotter.join()
                 pl.logger.join()
